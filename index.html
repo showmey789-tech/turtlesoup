@@ -1,977 +1,1022 @@
-<!-- 경계의 식당 — v6 (조각 패널 강화 / 챕터 데이터화 / WRATH + SLOTH) -->
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>경계의 식당</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Nanum+Myeongjo:wght@400;700;800&display=swap" rel="stylesheet">
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>기사 육성기 — 평민에서 마스터급 기사로</title>
 <style>
-  :root{--bg:#0b0c0e;--bg2:#121316;--ink:#cfc7ba;--ink-dim:#857d70;--bone:#e8e0d2;
-    --amber:#d99a4e;--amber-soft:#b07c3e;--blood:#7a2b25;--line:#26262b;--card:#15161a;}
-  *{box-sizing:border-box;margin:0;padding:0}
-  html,body{height:100%}
-  body{background:
-      radial-gradient(1200px 600px at 50% -10%, rgba(217,154,78,.07), transparent 60%),
-      radial-gradient(900px 500px at 80% 110%, rgba(122,43,37,.08), transparent 60%),var(--bg);
-    color:var(--ink);font-family:"Nanum Myeongjo",serif;line-height:1.75;overflow-x:hidden;}
-  body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
-    background:radial-gradient(60% 40% at 20% 30%, rgba(255,255,255,.015), transparent),
-      radial-gradient(50% 40% at 75% 70%, rgba(255,255,255,.012), transparent);
-    mix-blend-mode:screen;animation:drift 26s ease-in-out infinite alternate;}
-  @keyframes drift{from{transform:translate3d(-2%,0,0)}to{transform:translate3d(2%,-1%,0)}}
-  body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;opacity:.04;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
-  .wrap{position:relative;z-index:2;max-width:760px;margin:0 auto;padding:54px 22px 40px}
-
-  /* ── 진실의 조각 (좌측 상단 고정) ── */
-  #cluePanel{position:fixed;top:16px;left:16px;z-index:30;display:none;
-    background:linear-gradient(180deg,rgba(18,19,24,.9),rgba(11,12,14,.86));
-    border:1px solid var(--line);border-radius:10px;padding:13px 16px;backdrop-filter:blur(5px);
-    box-shadow:0 12px 30px -12px rgba(0,0,0,.8)}
-  #cluePanel.show{display:block;animation:fadein .6s ease both}
-  .cp-title{font-family:"Cormorant Garamond",serif;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-dim);margin-bottom:10px;text-align:center}
-  .cp-gems{display:flex;gap:16px;justify-content:center;padding:2px 4px}
-  .gem{width:18px;height:18px;transform:rotate(45deg);border:1.5px solid #3a3a40;background:transparent;position:relative;transition:background .4s,border-color .4s,box-shadow .4s}
-  .gem.on{background:var(--amber);border-color:var(--amber);box-shadow:0 0 16px 3px rgba(217,154,78,.75)}
-  .gem.pop{animation:gempop .65s ease}
-  @keyframes gempop{0%{transform:rotate(45deg) scale(1)}40%{transform:rotate(45deg) scale(1.5)}100%{transform:rotate(45deg) scale(1)}}
-  .gem .ring{position:absolute;inset:-3px;border:1.5px solid var(--amber);opacity:0}
-  .gem.pop .ring{animation:gemring .8s ease-out forwards}
-  @keyframes gemring{from{opacity:.85;transform:scale(.7)}to{opacity:0;transform:scale(2.4)}}
-  .cp-count{text-align:center;font-family:"Cormorant Garamond",serif;font-size:13px;color:var(--amber);margin-top:11px;letter-spacing:.14em}
-
-  #title{position:fixed;inset:0;z-index:60;background:
-      radial-gradient(900px 600px at 50% 30%, rgba(217,154,78,.10), transparent 62%),
-      radial-gradient(700px 500px at 50% 120%, rgba(122,43,37,.10), transparent 60%),#070809;
-    display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;transition:opacity 1s ease}
-  #title.gone{opacity:0;pointer-events:none}
-  .bowl{width:120px;height:64px;margin-bottom:30px;position:relative;animation:steam-rise 1.4s ease both}
-  @keyframes steam-rise{from{opacity:0;transform:translateY(10px)}to{opacity:1}}
-  .bowl .dish{position:absolute;bottom:0;left:0;right:0;height:34px;border:1px solid var(--amber-soft);border-top:none;border-radius:0 0 60px 60px;
-    background:radial-gradient(60% 120% at 50% 0,rgba(217,154,78,.22),transparent 70%);box-shadow:0 0 40px rgba(217,154,78,.18)}
-  .bowl .st{position:absolute;top:0;width:1.5px;height:30px;background:linear-gradient(transparent,rgba(217,154,78,.5),transparent);animation:steam 3s ease-in-out infinite}
-  .bowl .st:nth-child(1){left:42px}.bowl .st:nth-child(2){left:60px;height:38px;top:-6px;animation-delay:.6s}.bowl .st:nth-child(3){left:78px;animation-delay:1.1s}
-  @keyframes steam{0%{opacity:0;transform:translateY(6px) scaleY(.7)}50%{opacity:.8}100%{opacity:0;transform:translateY(-10px) scaleY(1.2)}}
-  .t-en{font-family:"Cormorant Garamond",serif;letter-spacing:.4em;text-transform:uppercase;font-size:13px;color:var(--amber);margin-bottom:14px;animation:fadein 1.4s ease .2s both}
-  h1.title{font-family:"Nanum Myeongjo",serif;font-weight:800;font-size:54px;letter-spacing:.14em;color:var(--bone);text-shadow:0 0 46px rgba(217,154,78,.22);text-align:center;animation:fadein 1.6s ease .4s both}
-  .t-sub{font-family:"Cormorant Garamond",serif;font-style:italic;color:var(--ink-dim);font-size:16px;margin-top:16px;text-align:center;max-width:440px;line-height:1.7;animation:fadein 1.8s ease .7s both}
-  @keyframes fadein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-  .t-menu{margin-top:48px;display:flex;flex-direction:column;gap:14px;width:260px;animation:fadein 2s ease 1s both}
-  .t-btn{background:transparent;border:1px solid var(--amber-soft);color:var(--bone);font-family:"Nanum Myeongjo",serif;font-size:16px;letter-spacing:.16em;padding:14px;border-radius:3px;cursor:pointer;transition:.2s;text-align:center}
-  .t-btn:hover{background:rgba(217,154,78,.1);box-shadow:0 0 22px rgba(217,154,78,.15)}
-  .t-btn.primary{background:linear-gradient(180deg,var(--amber),var(--amber-soft));border:none;color:#1a1206;font-weight:700}
-  .loadbox{margin-top:14px;width:260px;display:none;flex-direction:column;gap:10px;animation:fadein .4s ease both}
-  .loadbox.show{display:flex}
-  .loadbox input{background:var(--bg2);border:1px solid var(--line);border-radius:3px;color:var(--bone);font-family:"Cormorant Garamond",serif;letter-spacing:.16em;text-transform:uppercase;font-size:16px;padding:12px 14px;text-align:center;outline:none}
-  .loadbox input:focus{border-color:var(--amber-soft)}
-  .loadmsg{font-size:12.5px;color:var(--ink-dim);text-align:center;min-height:18px;font-style:italic}
-  .loadmsg.err{color:#d98a7e}
-  .codehint{margin-top:18px;font-size:11px;color:#4a463d;letter-spacing:.1em;text-align:center;animation:fadein 2.4s ease 1.4s both}
-
-  #opening{position:fixed;inset:0;z-index:50;background:radial-gradient(800px 500px at 50% 40%, rgba(217,154,78,.08), transparent 60%), #08090b;
-    display:none;flex-direction:column;align-items:center;justify-content:center;padding:40px;text-align:center;cursor:pointer;transition:opacity 1.1s ease}
-  #opening.show{display:flex}#opening.gone{opacity:0;pointer-events:none}
-  .door{width:1px;height:90px;background:linear-gradient(var(--amber),transparent);box-shadow:0 0 40px 10px rgba(217,154,78,.3);margin-bottom:38px;opacity:0;animation:lampin 2.4s ease forwards}
-  @keyframes lampin{to{opacity:1}}
-  #openLine{max-width:540px;min-height:120px;font-size:21px;color:var(--bone);line-height:1.95;transition:opacity .6s ease}
-  #openLine .who{display:block;font-family:"Cormorant Garamond",serif;font-style:italic;color:var(--amber);font-size:14px;letter-spacing:.22em;text-transform:uppercase;margin-bottom:12px}
-  .tapnext{margin-top:46px;font-size:12px;color:var(--ink-dim);letter-spacing:.3em;text-transform:uppercase;font-family:"Cormorant Garamond",serif;animation:blink 2.4s infinite}
-  @keyframes blink{0%,100%{opacity:.25}50%{opacity:.7}}
-  .enterbtn{margin-top:40px;background:linear-gradient(180deg,var(--amber),var(--amber-soft));border:none;color:#1a1206;font-family:"Cormorant Garamond",serif;font-weight:600;font-size:17px;letter-spacing:.12em;padding:14px 40px;border-radius:4px;cursor:pointer;display:none}
-  .enterbtn:hover{filter:brightness(1.08)}
-
-  .crumb{font-family:"Cormorant Garamond",serif;letter-spacing:.32em;text-transform:uppercase;font-size:12px;color:var(--ink-dim);text-align:center}
-  h1.sin{font-family:"Cormorant Garamond",serif;font-weight:600;font-size:74px;letter-spacing:.04em;text-align:center;color:var(--bone);line-height:1;margin:6px 0 2px;text-shadow:0 0 38px rgba(217,154,78,.18)}
-  .sin-ko{text-align:center;font-size:15px;color:var(--amber);letter-spacing:.5em;padding-left:.5em;margin-bottom:6px}
-  .sin-lat{text-align:center;font-family:"Cormorant Garamond",serif;font-style:italic;color:var(--ink-dim);font-size:16px;letter-spacing:.08em}
-  .rule{width:54px;height:1px;background:linear-gradient(90deg,transparent,var(--amber-soft),transparent);margin:26px auto 30px}
-  .soup{background:linear-gradient(180deg,var(--card),#101115);border:1px solid var(--line);border-radius:3px;padding:26px 26px 24px;position:relative;box-shadow:0 30px 60px -30px rgba(0,0,0,.9), inset 0 1px 0 rgba(255,255,255,.03);}
-  .soup .tag{font-family:"Cormorant Garamond",serif;font-style:italic;color:var(--amber);font-size:15px;letter-spacing:.06em;margin-bottom:10px}
-  .soup p{font-size:19px;color:var(--bone);line-height:1.9}
-  .soup .lamp{position:absolute;top:-1px;right:22px;width:2px;height:36px;background:linear-gradient(var(--amber),transparent);box-shadow:0 0 22px 4px rgba(217,154,78,.35)}
-  .host-intro{margin:26px 2px 8px;color:var(--ink-dim);font-size:15px;font-style:italic;text-align:center}
-  .host-intro b{color:var(--ink);font-style:normal;font-weight:400}
-
-  .log{margin:0;display:flex;flex-direction:column;gap:14px}
-  /* 고정 높이 대화 영역 — 전체 화면이 내려가지 않고 이 안에서만 스크롤 */
-  .convo{position:relative;margin:18px 0 8px;height:46vh;min-height:300px;max-height:520px;
-    overflow-y:auto;padding:6px 4px;border:1px solid var(--line);border-radius:10px;
-    background:linear-gradient(180deg,rgba(255,255,255,.012),rgba(0,0,0,.12));
-    scroll-behavior:smooth}
-  .convo::-webkit-scrollbar{width:8px}
-  .convo::-webkit-scrollbar-thumb{background:#2b2c33;border-radius:4px}
-  .convo::-webkit-scrollbar-track{background:transparent}
-  .convo .log{padding:8px 10px}
-  /* 엔딩 오버레이 — 대화 영역 자리에 고정으로 덮어씌움 */
-  .reveal-overlay{position:absolute;inset:0;z-index:6;overflow-y:auto;
-    display:none;padding:0;background:linear-gradient(180deg,#101115,#0c0d10)}
-  .reveal-overlay.show{display:block;animation:fadein .5s ease both}
-  .reveal-overlay .ov-inner{padding:16px 16px 22px}
-  .reveal-overlay .reveal{margin-top:0}
-  .turn{display:flex;flex-direction:column;gap:8px;animation:rise .5s ease both}
-  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-  .q{align-self:flex-end;max-width:82%;background:#1c1d22;border:1px solid #2b2c33;border-radius:12px 12px 2px 12px;padding:11px 15px;color:var(--ink);font-size:15.5px}
-  .a{align-self:flex-start;max-width:88%;display:flex;gap:12px;align-items:flex-start}
-  .a .verdict{flex:none;font-family:"Cormorant Garamond",serif;font-weight:600;font-size:13px;letter-spacing:.12em;text-transform:uppercase;padding:6px 10px;border-radius:2px;margin-top:2px;white-space:nowrap}
-  .v-yes{color:#bfe3b0;border:1px solid #2f5a2a;background:rgba(60,110,50,.12)}
-  .v-no{color:#e9b3ad;border:1px solid #5a2f2a;background:rgba(120,50,45,.12)}
-  .v-irr{color:#bdb6a8;border:1px solid #3a3a40;background:rgba(120,120,120,.08)}
-  .v-part{color:var(--amber);border:1px solid var(--amber-soft);background:rgba(217,154,78,.1)}
-  .a .said{color:var(--ink);font-size:15.5px;font-style:italic;line-height:1.7}
-  .hintline{align-self:flex-start;max-width:88%;border-left:2px solid var(--amber-soft);padding:4px 0 4px 14px;color:var(--amber);font-size:15px;font-style:italic;animation:rise .5s ease both}
-  .hintline .hk{display:block;font-family:"Cormorant Garamond",serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-dim);margin-bottom:4px;font-style:normal}
-
-  .qpanel{margin-top:22px;border-top:1px solid var(--line);padding-top:20px}
-  .qpanel .ph{font-family:"Cormorant Garamond",serif;letter-spacing:.18em;text-transform:uppercase;font-size:12px;color:var(--ink-dim);margin-bottom:14px;text-align:center}
-  .qlist{display:flex;flex-direction:column;gap:8px;min-height:255px}
-  .qitem{text-align:left;background:var(--bg2);border:1px solid var(--line);border-radius:6px;color:var(--ink);font-family:"Nanum Myeongjo",serif;font-size:15px;line-height:1.5;padding:13px 16px;cursor:pointer;transition:.18s}
-  .qitem:hover{border-color:var(--amber-soft);background:#191a1f;transform:translateX(2px)}
-  .qitem.asked{opacity:.38;cursor:default;pointer-events:none;text-decoration:line-through;text-decoration-color:var(--ink-dim)}
-  .qitem .num{font-family:"Cormorant Garamond",serif;color:var(--amber-soft);margin-right:10px;font-size:13px}
-  .pager{display:flex;justify-content:space-between;align-items:center;margin-top:14px}
-  .pager button{background:transparent;border:1px solid var(--line);color:var(--ink);font-family:"Cormorant Garamond",serif;font-size:14px;letter-spacing:.08em;padding:9px 18px;border-radius:4px;cursor:pointer;transition:.18s}
-  .pager button:hover:not(:disabled){border-color:var(--amber-soft);color:var(--amber)}
-  .pager button:disabled{opacity:.3;cursor:default}
-  .pager .pinfo{font-family:"Cormorant Garamond",serif;font-size:13px;color:var(--ink-dim);letter-spacing:.1em}
-
-  .actions{position:sticky;bottom:0;z-index:5;background:linear-gradient(180deg,transparent,var(--bg) 30%);padding:20px 0 14px;margin-top:8px;display:flex;gap:12px}
-  .actions button{flex:1;height:54px;border-radius:5px;font-family:"Cormorant Garamond",serif;font-size:17px;letter-spacing:.06em;cursor:pointer;transition:filter .15s,transform .1s,background .2s}
-  .actions button:active{transform:translateY(1px)}
-  .btn-ask{background:linear-gradient(180deg,var(--amber),var(--amber-soft));border:none;color:#1a1206;font-weight:700}
-  .btn-ask:hover{filter:brightness(1.08)}
-  .btn-solve{background:transparent;border:1px solid var(--blood);color:#e7a89f;font-weight:600}
-  .btn-solve:hover{background:rgba(122,43,37,.18);box-shadow:0 0 22px rgba(122,43,37,.2)}
-  .actions button:disabled{opacity:.4;cursor:default}
-  .meta{display:flex;justify-content:space-between;align-items:center;margin:6px 2px 0;font-size:12.5px;color:var(--ink-dim);letter-spacing:.04em;flex-wrap:wrap;gap:10px}
-  .meta .count b{color:var(--amber);font-weight:400}
-  .linkbtn{background:none;border:none;color:var(--ink-dim);font-family:"Nanum Myeongjo",serif;font-size:12.5px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
-  .linkbtn:hover{color:var(--amber)}.linkbtn:disabled{opacity:.4;cursor:default;text-decoration:none}
-
-  .modal{position:fixed;inset:0;z-index:40;background:rgba(5,6,8,.82);display:none;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(3px)}
-  .modal.show{display:flex;animation:fadein .3s ease both}
-  .sheet{max-width:580px;width:100%;background:linear-gradient(180deg,var(--card),#0f1013);border:1px solid var(--amber-soft);border-radius:6px;padding:26px}
-  .sheet h3{font-family:"Cormorant Garamond",serif;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);font-size:15px;margin-bottom:6px}
-  .sheet .gp{font-size:14px;color:var(--ink-dim);font-style:italic;margin-bottom:16px}
-  .sheet .opt{text-align:left;width:100%;background:var(--bg2);border:1px solid var(--line);border-radius:6px;color:var(--ink);font-family:"Nanum Myeongjo",serif;font-size:14.5px;line-height:1.55;padding:13px 16px;cursor:pointer;transition:.18s;margin-bottom:9px}
-  .sheet .opt:hover{border-color:var(--amber);background:#191a1f}
-  .sheet .warn{font-size:12px;color:#d98a7e;text-align:center;margin:4px 0 12px;font-style:italic}
-  .sheet .srow{display:flex;justify-content:space-between;align-items:center;margin-top:6px}
-
-  .reveal{margin-top:26px;border:1px solid var(--amber-soft);border-radius:4px;overflow:hidden;animation:rise .7s ease both;background:linear-gradient(180deg,rgba(217,154,78,.06),rgba(122,43,37,.05))}
-  .reveal h3{font-family:"Cormorant Garamond",serif;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--amber);font-size:14px;padding:16px 22px 0}
-  .reveal .body{padding:10px 22px 22px;color:var(--bone);font-size:16px;line-height:1.95}
-  .reveal .body p{margin-bottom:12px}.reveal .sig{font-style:italic;color:var(--ink-dim);font-size:14px}
-  .lastword{margin:14px 0;padding:14px 18px;border-left:2px solid var(--amber-soft);color:var(--bone);font-style:italic;font-size:16.5px;line-height:1.8}
-  .ending-actions{margin-top:20px;display:flex;gap:12px;flex-wrap:wrap}
-  .ending-actions button{flex:1;min-width:140px;height:50px;border-radius:5px;font-family:"Cormorant Garamond",serif;font-size:15px;letter-spacing:.06em;cursor:pointer}
-  .ea-retry{background:transparent;border:1px solid var(--amber-soft);color:var(--bone)}
-  .ea-retry:hover{background:rgba(217,154,78,.1)}
-  .ea-title{background:linear-gradient(180deg,var(--amber),var(--amber-soft));border:none;color:#1a1206;font-weight:700}
-  .leave{margin-top:18px;text-align:center;color:var(--ink-dim);font-style:italic;font-size:15px;line-height:1.9;animation:fadeup 1.4s ease both}
-  @keyframes fadeup{from{opacity:0}to{opacity:1}}
-  .memory{margin-top:18px;border:1px solid var(--line);border-radius:4px;padding:20px 22px;background:rgba(255,255,255,.012);animation:rise 1.1s ease .5s both}
-  .memory .mk{font-family:"Cormorant Garamond",serif;font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:var(--amber);margin-bottom:10px}
-  .memory p{color:var(--ink);font-size:16px;font-style:italic;line-height:1.95}
-  .memory .frag{font-size:11px;color:var(--ink-dim);letter-spacing:.1em;margin-top:12px;font-style:normal}
-  .codecard{margin-top:18px;border:1px dashed var(--amber-soft);border-radius:4px;padding:18px 22px;text-align:center;animation:rise 1.1s ease 1s both}
-  .codecard .ck{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-dim);font-family:"Cormorant Garamond",serif}
-  .codecard .code{font-family:"Cormorant Garamond",serif;font-size:30px;letter-spacing:.3em;color:var(--amber);margin:8px 0 6px;text-shadow:0 0 20px rgba(217,154,78,.3)}
-  .codecard .desc{font-size:12.5px;color:var(--ink-dim);font-style:italic}
-  .stub{max-width:520px;margin:80px auto;text-align:center;color:var(--ink-dim);font-style:italic;font-size:17px;line-height:2}
-
-  #gameover{position:fixed;inset:0;z-index:55;background:radial-gradient(700px 500px at 50% 45%,rgba(122,43,37,.18),transparent 60%),#060507;
-    display:none;flex-direction:column;align-items:center;justify-content:center;padding:40px;text-align:center;animation:fadein .8s ease both}
-  #gameover.show{display:flex}
-  #gameover .go-en{font-family:"Cormorant Garamond",serif;letter-spacing:.4em;text-transform:uppercase;font-size:14px;color:#a9534a;margin-bottom:16px}
-  #gameover h2{font-family:"Nanum Myeongjo",serif;font-weight:800;font-size:40px;letter-spacing:.1em;color:#e7c9c3;margin-bottom:20px}
-  #gameover p{max-width:480px;color:var(--ink-dim);font-style:italic;font-size:16px;line-height:1.9;margin-bottom:34px}
-  #gameover .gobtns{display:flex;gap:14px}
-
-  /* ── 모바일 대응 (1080x2340 등 좁은 화면) ── */
-  @media (max-width:560px){
-    .wrap{padding:18px 16px 40px}
-    /* 조각 패널: 고정 해제하고 본문 위 가로 띠로 */
-    #cluePanel{position:static;display:none;margin:0 0 4px;padding:10px 14px;border-radius:10px;
-      backdrop-filter:none;width:100%}
-    #cluePanel.show{display:flex;align-items:center;justify-content:space-between;gap:10px}
-    .cp-title{margin-bottom:0;font-size:10px;white-space:nowrap}
-    .cp-gems{gap:14px;flex:1;justify-content:center}
-    .gem{width:15px;height:15px}
-    .cp-count{margin-top:0;font-size:12px;white-space:nowrap}
-    /* 헤더 크기 축소 */
-    h1.sin{font-size:46px}
-    .crumb{font-size:11px}
-    .rule{margin:18px auto 22px}
-    .soup{padding:20px 18px}
-    .soup p{font-size:17px}
-    h1.title{font-size:40px;letter-spacing:.1em}
-    .t-en{font-size:11px;letter-spacing:.3em}
-    .codehint{font-size:10px;padding:0 10px;line-height:1.7}
-    /* 오프닝/엔딩 텍스트 */
-    #openLine{font-size:18px}
-    /* 질문/액션 */
-    .qitem{font-size:14.5px;padding:12px 14px}
-    .qlist{min-height:0}
-    .actions{flex-direction:column;gap:10px}
-    .actions button{height:50px;font-size:15px}
-    .pager button{padding:8px 14px;font-size:13px}
-    /* 모달 */
-    .modal{padding:14px}
-    .sheet{padding:20px 16px;max-height:88vh;overflow-y:auto}
-    .sheet .opt{font-size:14px;padding:12px 14px}
-    /* 게임오버 */
-    #gameover{padding:30px 22px}
-    #gameover h2{font-size:32px}
-    #gameover .gobtns{flex-direction:column;width:100%;max-width:280px}
-    #gameover .gobtns button{width:100%!important}
-    /* 엔딩 버튼 */
-    .ending-actions{flex-direction:column}
-    .reveal .body{font-size:15px;padding:10px 18px 20px}
-    /* 안전영역(노치/홈바) */
-    .actions{padding-bottom:max(14px,env(safe-area-inset-bottom))}
+  :root {
+    --bg: #0c0f17;
+    --panel: #151b29;
+    --panel2: #1d2638;
+    --line: #2c3a55;
+    --text: #e9eef8;
+    --sub: #93a1c0;
+    --accent: #7dd3fc;
+    --accent2: #a78bfa;
+    --gold: #fbbf24;
+    --stam: #38bdf8;
+    --exp: #34d399;
+    --danger: #f87171;
+    --str:#f87171; --agi:#34d399; --vit:#fb923c; --tec:#7dd3fc;
   }
-  @media (max-width:380px){
-    h1.sin{font-size:38px}
-    .gem{width:13px;height:13px}
-    .cp-gems{gap:11px}
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; }
+  body {
+    font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+    background: radial-gradient(1200px 800px at 50% -10%, #1a2540 0%, var(--bg) 55%), var(--bg);
+    color: var(--text);
+    display: flex; justify-content: center; min-height: 100%; overflow-x: hidden;
   }
+  #app {
+    width: 100%; max-width: 460px; min-height: 100vh;
+    background: linear-gradient(180deg, #121826 0%, #0c0f17 100%);
+    display: flex; flex-direction: column; position: relative;
+  }
+
+  /* 상단 자원바 */
+  header {
+    padding: 13px 16px 9px; border-bottom: 1px solid var(--line);
+    background: rgba(12,15,23,.85); backdrop-filter: blur(8px);
+    position: sticky; top: 0; z-index: 10;
+  }
+  .title { font-size: 15px; font-weight: 700; letter-spacing: .3px; }
+  .title small { color: var(--sub); font-weight: 400; font-size: 11px; }
+  .resources { display: flex; gap: 8px; margin-top: 9px; }
+  .res { flex: 1; background: var(--panel); border: 1px solid var(--line);
+    border-radius: 11px; padding: 7px 8px; text-align: center; }
+  .res .label { font-size: 10px; color: var(--sub); }
+  .res .val { font-size: 15px; font-weight: 800; margin-top: 2px; }
+  .res .rate { font-size: 9px; color: var(--accent); margin-top: 1px; }
+
+  /* 무대 */
+  .stage { display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 18px 16px 8px; position: relative; overflow: hidden; }
+  .stage-bg { position: absolute; inset: 0;
+    background: radial-gradient(360px 260px at 50% 36%, rgba(125,211,252,.12), transparent 70%);
+    pointer-events: none; }
+  .hero-wrap { position: relative; cursor: pointer; user-select: none; }
+  .hero { font-size: 84px; line-height: 1; filter: drop-shadow(0 12px 24px rgba(0,0,0,.5));
+    transition: transform .08s ease; animation: bob 2.6s ease-in-out infinite; }
+  @keyframes bob { 0%,100%{ transform: translateY(0) } 50%{ transform: translateY(-10px) } }
+  .hero-wrap:active .hero { transform: scale(.9); }
+  .hero-name { text-align: center; margin-top: 10px; font-weight: 800; font-size: 18px; }
+  .hero-rank { text-align: center; color: var(--sub); font-size: 12px; margin-top: 2px; }
+  .hero-power { text-align:center; margin-top:6px; font-size:12px; color:var(--gold); font-weight:700; }
+
+  /* EXP 게이지 */
+  .growth { width: 86%; max-width: 300px; margin: 12px auto 0; }
+  .bar { height: 13px; background: var(--panel2); border-radius: 99px; overflow: hidden; border: 1px solid var(--line); }
+  .bar > span { display: block; height: 100%; width: 0%; transition: width .25s ease; }
+  .bar.exp > span { background: linear-gradient(90deg, #34d399, #10b981); }
+  .bar.quest > span { background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+  .bar.fame > span { background: linear-gradient(90deg, var(--gold), #f59e0b); }
+
+  /* 명성/승급 */
+  .promote-box { width: 86%; max-width: 300px; margin: 12px auto 0; }
+  .fame-line { font-size: 11px; color: var(--gold); font-weight: 700; text-align: center; margin-bottom: 5px; }
+  .fame-line .fame-next { color: var(--sub); font-weight: 600; }
+  .promote-box .bar.fame { height: 11px; }
+  .promote-btn { width: 100%; border: none; border-radius: 12px; padding: 11px; font-family: inherit;
+    font-weight: 800; font-size: 14px; color: #3b2c00; cursor: pointer;
+    background: linear-gradient(135deg, var(--gold), #f59e0b); box-shadow: 0 0 0 0 rgba(251,191,36,.6);
+    animation: promoPulse 1.4s ease-in-out infinite; }
+  .promote-btn small { font-weight: 600; font-size: 11px; opacity: .85; }
+  .promote-btn:active { transform: scale(.97); }
+  @keyframes promoPulse { 0%,100%{ box-shadow: 0 0 0 0 rgba(251,191,36,.5) } 50%{ box-shadow: 0 0 14px 3px rgba(251,191,36,.55) } }
+  .growth .meta { display: flex; justify-content: space-between; margin-top: 5px; font-size: 11px; color: var(--sub); }
+
+  .float { position: absolute; font-weight: 800; font-size: 15px;
+    pointer-events: none; animation: floatUp .9s ease-out forwards; }
+  @keyframes floatUp { 0%{ opacity: 1; transform: translateY(0) } 100%{ opacity: 0; transform: translateY(-55px) } }
+
+  /* 의뢰 진행 패널 */
+  .quest-panel { margin: 14px 16px 0; background: var(--panel); border: 1px solid var(--line);
+    border-radius: 14px; padding: 12px 14px; }
+  .quest-panel .qhead { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+  .quest-panel .qhead .ttl { font-size:12px; color:var(--sub); font-weight:700; }
+  .toggle { display:flex; align-items:center; gap:6px; font-size:11px; color:var(--sub); cursor:pointer; user-select:none; }
+  .toggle .sw { width:34px; height:18px; border-radius:99px; background:var(--panel2); border:1px solid var(--line); position:relative; transition:background .2s; }
+  .toggle .sw::after { content:""; position:absolute; top:1px; left:1px; width:14px; height:14px; border-radius:50%; background:var(--sub); transition:transform .2s, background .2s; }
+  .toggle.on .sw { background: rgba(52,211,153,.3); border-color: var(--exp); }
+  .toggle.on .sw::after { transform: translateX(16px); background: var(--exp); }
+  .quest-now { display:flex; align-items:center; gap:10px; }
+  .quest-now .qe { font-size:26px; }
+  .quest-now .qinfo { flex:1; }
+  .quest-now .qnm { font-weight:700; font-size:14px; }
+  .quest-now .qrw { font-size:11px; color:var(--sub); margin-top:2px; }
+  .quest-empty { font-size:13px; color:var(--sub); text-align:center; padding:6px 0; }
+
+  /* 액션 버튼 */
+  .actions { display: flex; gap: 10px; padding: 14px 16px 12px; }
+  .btn { flex: 1; border: none; border-radius: 14px; padding: 14px 8px; font-weight: 800;
+    font-size: 14px; cursor: pointer; transition: transform .06s, filter .2s; font-family: inherit; }
+  .btn:active { transform: scale(.96); }
+  .btn.train { background: linear-gradient(135deg, #38bdf8, #0ea5e9); color:#06243a; }
+  .btn.quest { background: linear-gradient(135deg, #a78bfa, #8b5cf6); color:#1a0f3a; }
+  .btn small { display: block; font-weight: 600; font-size: 10px; opacity: .85; margin-top: 2px; }
+
+  /* 탭 네비 */
+  nav { display: flex; border-top: 1px solid var(--line); background: var(--panel); margin-top:auto; }
+  nav button { flex: 1; background: none; border: none; color: var(--sub); padding: 9px 4px 11px;
+    font-size: 11px; font-family: inherit; cursor: pointer; font-weight: 600;
+    display: flex; flex-direction: column; align-items: center; gap: 3px; }
+  nav button .ico { font-size: 17px; }
+  nav button.active { color: var(--accent); }
+
+  /* 시트 */
+  .sheet { position: fixed; left: 50%; transform: translateX(-50%) translateY(100%);
+    bottom: 0; width: 100%; max-width: 460px; max-height: 74vh; overflow-y: auto;
+    background: var(--panel); border-top-left-radius: 20px; border-top-right-radius: 20px;
+    border-top: 1px solid var(--line); z-index: 30; transition: transform .28s cubic-bezier(.2,.8,.2,1);
+    padding-bottom: 24px; }
+  .sheet.open { transform: translateX(-50%) translateY(0); }
+  .sheet-head { position: sticky; top: 0; background: var(--panel); padding: 16px 16px 10px;
+    display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--line); z-index:2; }
+  .sheet-head h2 { font-size: 16px; }
+  .sheet-head .hint { font-size:10px; color:var(--sub); font-weight:400; margin-left:8px; }
+  .sheet-head .close { background: var(--panel2); border: none; color: var(--text); width: 30px; height: 30px;
+    border-radius: 8px; font-size: 16px; cursor: pointer; }
+  .scrim { position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 20; opacity: 0;
+    pointer-events: none; transition: opacity .28s; }
+  .scrim.open { opacity: 1; pointer-events: auto; }
+
+  .item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+  .item .emoji { font-size: 26px; width: 38px; text-align: center; }
+  .item .info { flex: 1; min-width:0; }
+  .item .info .nm { font-weight: 700; font-size: 14px; }
+  .item .info .ds { font-size: 11px; color: var(--sub); margin-top: 2px; }
+  .item .info .lv { font-size: 11px; color: var(--accent2); margin-top: 3px; font-weight: 700; }
+  .buy { border: none; border-radius: 10px; padding: 9px 12px; font-weight: 800; font-size: 12px;
+    background: var(--gold); color: #3b2c00; cursor: pointer; font-family: inherit; min-width: 78px;
+    transition: transform .06s; }
+  .buy:active { transform: scale(.94); }
+  .buy:disabled { background: var(--panel2); color: var(--sub); cursor: not-allowed; }
+  .buy.act { background: var(--stam); color:#06243a; }
+  .buy.go  { background: var(--accent2); color:#1a0f3a; }
+
+  /* 능력치 미니바 */
+  .statbar { height:7px; background:var(--panel2); border-radius:99px; overflow:hidden; margin-top:5px; }
+  .statbar > span { display:block; height:100%; transition: width .2s; }
+
+  /* ===== 수련장 장면 ===== */
+  .train-select { display:flex; gap:8px; padding:14px 14px 4px; flex-wrap:wrap; }
+  .train-select .chip { flex:1 1 calc(50% - 8px); background:var(--panel2); border:1px solid var(--line);
+    border-radius:12px; padding:9px 6px; text-align:center; cursor:pointer; transition: border-color .15s, background .15s; }
+  .train-select .chip .ce { font-size:20px; }
+  .train-select .chip .cn { font-size:11px; font-weight:700; margin-top:2px; }
+  .train-select .chip .cs { font-size:10px; color:var(--sub); margin-top:1px; }
+  .train-select .chip.sel { border-color:var(--accent); background:rgba(125,211,252,.12); }
+
+  .train-arena { position:relative; height:170px; margin:6px 14px 0; border-radius:16px;
+    background: linear-gradient(180deg,#10172a,#0d1320); border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:space-between; padding:0 42px; overflow:hidden; }
+  .train-arena::after { content:""; position:absolute; left:0; right:0; bottom:34px; height:1px; background:var(--line); opacity:.6; }
+  .fighter { font-size:60px; transition: transform .12s cubic-bezier(.3,1.6,.5,1); z-index:2; }
+  .fighter.strike { transform: translateX(46px) rotate(-14deg); }
+  .dummy { font-size:60px; transition: transform .1s; }
+  .dummy.hit { animation: dshake .22s; }
+  @keyframes dshake { 0%,100%{transform:translateX(0) rotate(0)} 25%{transform:translateX(10px) rotate(8deg)} 60%{transform:translateX(-5px) rotate(-3deg)} }
+  .hit-fx { position:absolute; left:54%; top:26%; font-size:34px; opacity:0; pointer-events:none; }
+  .hit-fx.show { animation: hitpop .4s ease-out; }
+  @keyframes hitpop { 0%{opacity:0; transform:scale(.4)} 30%{opacity:1; transform:scale(1.25)} 100%{opacity:0; transform:scale(1.6) translateY(-14px)} }
+  .train-float { position:absolute; left:54%; top:14%; font-weight:800; font-size:15px; opacity:0; pointer-events:none; }
+  .train-float.show { animation: floatUp .9s ease-out; }
+
+  .train-status { padding:14px; }
+  .tr-readout { display:flex; justify-content:space-between; align-items:baseline; font-size:14px; font-weight:700; }
+  .tr-readout b { font-weight:400; color:var(--sub); font-size:13px; }
+  .tr-msg { font-size:12px; margin-top:10px; min-height:18px; text-align:center; font-weight:700; color:var(--sub); }
+  .tr-cost { font-size:11px; color:var(--sub); margin-top:8px; text-align:center; }
+
+  /* 의뢰 잠김 */
+  .locked { opacity:.55; }
+  .req { font-size:11px; color:var(--danger); margin-top:3px; font-weight:700; }
+
+  /* 도감 */
+  .dex { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; padding: 16px; }
+  .dex .cell { background: var(--panel2); border: 1px solid var(--line); border-radius: 12px;
+    padding: 12px 6px; text-align: center; }
+  .dex .cell .e { font-size: 32px; filter: grayscale(1) brightness(.4); }
+  .dex .cell.unlocked .e { filter: none; }
+  .dex .cell .n { font-size: 10px; margin-top: 6px; color: var(--sub); }
+  .dex .cell.unlocked .n { color: var(--text); font-weight: 700; }
+  .dex .cell.cur { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold) inset; }
+  .dex .cell .rq { font-size:9px; color:var(--sub); margin-top:2px; }
+
+  #toast { position: fixed; top: 16px; left: 50%; transform: translateX(-50%) translateY(-80px);
+    background: var(--panel2); border: 1px solid var(--line); color: var(--text);
+    padding: 10px 18px; border-radius: 99px; font-size: 13px; font-weight: 700; z-index: 50;
+    transition: transform .3s; box-shadow: 0 8px 24px rgba(0,0,0,.4); max-width: 90%; text-align: center; }
+  #toast.show { transform: translateX(-50%) translateY(0); }
+
+  .modal-scrim { position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 60; display: none;
+    align-items: center; justify-content: center; padding: 24px; }
+  .modal-scrim.open { display: flex; }
+  .modal { background: var(--panel); border: 1px solid var(--line); border-radius: 20px;
+    padding: 24px; text-align: center; max-width: 320px; width: 100%; }
+  .modal h3 { font-size: 18px; margin-bottom: 8px; }
+  .modal p { color: var(--sub); font-size: 13px; line-height: 1.6; margin-bottom: 16px; }
+  .modal .reward { font-size: 18px; font-weight: 800; color: var(--gold); margin-bottom: 18px; line-height:1.5; }
+  .modal button { width: 100%; border: none; border-radius: 12px; padding: 13px; font-weight: 800;
+    font-size: 14px; background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #06243a;
+    cursor: pointer; font-family: inherit; }
+
+  .reset-row { padding: 16px; }
+  .reset-row button { width: 100%; background: transparent; border: 1px solid var(--danger); color: var(--danger);
+    padding: 11px; border-radius: 10px; font-weight: 700; cursor: pointer; font-family: inherit; font-size: 12px; }
 </style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="title">기사 육성기 <small>· 평민에서 마스터급 기사로</small></div>
+    <div class="resources">
+      <div class="res"><div class="label">🪙 골드</div><div class="val" id="gold">0</div><div class="rate" id="goldRate">+0/초</div></div>
+      <div class="res"><div class="label">⭐ 레벨</div><div class="val" id="level">Lv.1</div><div class="rate" id="expPct">0%</div></div>
+    </div>
+  </header>
 
-<!-- 진실의 조각 패널 -->
-<div id="cluePanel">
-  <div class="cp-title">진실의 조각</div>
-  <div class="cp-gems">
-    <div class="gem" data-i="0"><span class="ring"></span></div>
-    <div class="gem" data-i="1"><span class="ring"></span></div>
-    <div class="gem" data-i="2"><span class="ring"></span></div>
-    <div class="gem" data-i="3"><span class="ring"></span></div>
-  </div>
-  <div class="cp-count" id="cpCount">0 / 4</div>
-</div>
+  <div class="stage">
+    <div class="stage-bg"></div>
+    <div class="hero-wrap" id="heroWrap"><div class="hero" id="hero">🧑‍🌾</div></div>
+    <div class="hero-name" id="hName">평민</div>
+    <div class="hero-rank" id="hRank">1계급 · 검을 처음 잡다</div>
+    <div class="hero-power" id="hPower">⚔️ 전투력 20</div>
 
-<div id="title">
-  <div class="bowl"><span class="st"></span><span class="st"></span><span class="st"></span><div class="dish"></div></div>
-  <div class="t-en">The Liminal Diner</div>
-  <h1 class="title">경계의 식당</h1>
-  <div class="t-sub">떠나기 전, 마지막으로 들르는 자리.<br>한 그릇의 값은 — 이야기 하나.</div>
-  <div class="t-menu">
-    <button class="t-btn primary" id="btnNew">새로 시작</button>
-    <button class="t-btn" id="btnLoadToggle">불러오기</button>
-  </div>
-  <div class="loadbox" id="loadbox">
-    <input id="codeInput" maxlength="12" placeholder="기록 코드" autocomplete="off">
-    <button class="t-btn" id="btnLoadGo">이어서 들어간다</button>
-    <div class="loadmsg" id="loadmsg"></div>
-  </div>
-  <div class="codehint">시험 코드 — IRA · ACEDIA · INVIDIA · SUPERBIA · LUXURIA · GULA · AVARITIA</div>
-</div>
+    <div class="promote-box" id="promoteBox"></div>
 
-<div id="opening">
-  <div class="door"></div>
-  <div id="openLine"></div>
-  <div class="tapnext" id="tapnext">화면을 누르십시오</div>
-  <button class="enterbtn" id="enterBtn">문을 연다</button>
-</div>
-
-<div class="wrap" id="game" style="display:none">
-  <div class="crumb" id="chCrumb">경계의 식당</div>
-  <h1 class="sin" id="chSin">WRATH</h1>
-  <div class="sin-ko" id="chKo">분 노</div>
-  <div class="sin-lat" id="chLat">Ira</div>
-  <div class="rule"></div>
-  <div class="soup">
-    <div class="lamp"></div>
-    <div class="tag">— 주인이 그릇을 내려놓으며, 이야기를 시작한다.</div>
-    <p id="chRiddle"></p>
-  </div>
-  <div class="host-intro"><b>“아래에서 묻고 싶은 것을 고르십시오. 저는 ‘예’, ‘아니요’, 혹은 ‘그건 상관없습니다’로만 답합니다.”</b></div>
-  <div class="convo" id="convo">
-    <div class="log" id="log"></div>
-    <div class="reveal-overlay" id="revealSlot"></div>
-  </div>
-  <div class="qpanel" id="qpanel">
-    <div class="ph">— 무엇을 물으시겠습니까 —</div>
-    <div class="qlist" id="qlist"></div>
-    <div class="pager">
-      <button id="prevPage">◀ 이전</button>
-      <span class="pinfo" id="pinfo">1 / 4</span>
-      <button id="nextPage">다음 ▶</button>
+    <div class="growth">
+      <div class="bar exp"><span id="expBar"></span></div>
+      <div class="meta"><span>다음 레벨까지</span><span id="expVal">0 / 50</span></div>
     </div>
   </div>
+
+  <div class="quest-panel">
+    <div class="qhead">
+      <span class="ttl">📜 진행 중인 의뢰</span>
+      <span class="toggle" id="autoToggle"><span class="sw"></span>자동 반복</span>
+    </div>
+    <div id="questNow"></div>
+    <div class="growth" style="width:100%; margin-top:10px;">
+      <div class="bar quest"><span id="questBar"></span></div>
+      <div class="meta"><span id="questState">의뢰 없음</span><span id="questTime"></span></div>
+    </div>
+  </div>
+
   <div class="actions">
-    <button class="btn-ask" id="hintBtn">주인에게 귀띔을 청한다 (남은 3)</button>
-    <button class="btn-solve" id="openSolve">전말을 추리한다</button>
+    <button class="btn train" id="btnTrain">🗡️ 수련장 <small>능력치 올리기</small></button>
+    <button class="btn quest" id="btnQuest">📜 의뢰소 <small>경험치 벌기</small></button>
   </div>
-  <div class="meta">
-    <span class="count">물은 질문 <b id="qcount">0</b></span>
-    <button class="linkbtn" id="reset">타이틀로</button>
+
+  <nav>
+    <button data-sheet="train" class="active"><span class="ico">🗡️</span>수련</button>
+    <button data-sheet="quest"><span class="ico">📜</span>의뢰</button>
+    <button data-sheet="equip"><span class="ico">🛡️</span>장비</button>
+    <button data-sheet="upgrade"><span class="ico">⚡</span>육성</button>
+    <button data-sheet="dex"><span class="ico">🎖️</span>계급</button>
+    <button data-sheet="info"><span class="ico">⚙️</span>설정</button>
+  </nav>
+</div>
+
+<div class="scrim" id="scrim"></div>
+
+<div class="sheet" id="sheet-train">
+  <div class="sheet-head"><h2>🗡️ 수련장 <span class="hint" id="trainHint"></span></h2><button class="close">✕</button></div>
+  <div class="train-select" id="trainSelect"></div>
+  <div class="train-arena">
+    <div class="fighter" id="fighter">🤺</div>
+    <div class="hit-fx" id="hitFx">💥</div>
+    <div class="train-float" id="trainFloat"></div>
+    <div class="dummy" id="dummy">🎯</div>
+  </div>
+  <div class="train-status">
+    <div class="tr-readout"><span id="trStatName">훈련을 선택하세요</span><b id="trStatVal"></b></div>
+    <div class="statbar"><span id="trStatBar" style="width:0%"></span></div>
+    <div class="tr-msg" id="trMsg"></div>
+    <div class="tr-cost" id="trCost"></div>
   </div>
 </div>
 
-<div class="wrap" id="stubView" style="display:none">
-  <div class="stub" id="stubText"></div>
-  <div style="text-align:center"><button class="t-btn" id="stubBack" style="width:200px">타이틀로 돌아가기</button></div>
+<div class="sheet" id="sheet-quest">
+  <div class="sheet-head"><h2>📜 의뢰소 <span class="hint">승급할수록 더 강한 의뢰 해금</span></h2><button class="close">✕</button></div>
+  <div id="questList"></div>
 </div>
 
-<div class="modal" id="solveModal">
-  <div class="sheet">
-    <h3>전말을 추리한다</h3>
-    <div class="gp">“그렇다면 — 이 손님의 사연을, 당신의 입으로 들려주시겠습니까.”</div>
-    <div class="warn">※ 틀린 전말을 말하면, 손님은 영영 떠나지 못합니다. (게임 오버)</div>
-    <div id="solveOpts"></div>
-    <div class="srow">
-      <button class="linkbtn" id="solvePrev">◀ 이전</button>
-      <span class="pinfo" id="solvePinfo" style="font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--ink-dim)">1 / 2</span>
-      <button class="linkbtn" id="solveNext">다음 ▶</button>
-    </div>
-    <div style="text-align:center;margin-top:10px"><button class="linkbtn" id="closeSolve">아직 모르겠다 (닫기)</button></div>
+<div class="sheet" id="sheet-equip">
+  <div class="sheet-head"><h2>🛡️ 장비 <span class="hint" id="equipHint"></span></h2><button class="close">✕</button></div>
+  <div id="equipList"></div>
+</div>
+
+<div class="sheet" id="sheet-upgrade">
+  <div class="sheet-head"><h2>⚡ 육성</h2><button class="close">✕</button></div>
+  <div id="upgradeList"></div>
+</div>
+
+<div class="sheet" id="sheet-dex">
+  <div class="sheet-head"><h2>🎖️ 계급 · 승급</h2><button class="close">✕</button></div>
+  <div id="dexPromote" style="padding:14px 16px 4px;"></div>
+  <div class="dex" id="dexGrid"></div>
+  <div style="padding:0 16px 8px;"><div class="sheet-head" style="position:static; padding:14px 0 8px;"><h2 style="font-size:14px;">🏆 업적</h2></div></div>
+  <div id="achieveList"></div>
+</div>
+
+<div class="sheet" id="sheet-info">
+  <div class="sheet-head"><h2>⚙️ 설정 · 정보</h2><button class="close">✕</button></div>
+  <div style="padding:16px; color:var(--sub); font-size:13px; line-height:1.85;">
+    <p><b style="color:var(--text)">성장 루프</b></p>
+    <p>① <b style="color:var(--stam)">수련장</b>에서 능력치를 올린다<br>
+       ② <b style="color:var(--accent2)">의뢰</b>를 수행해 경험치를 번다<br>
+       ③ <b style="color:var(--exp)">레벨업</b> → 능력치 한계 돌파 + <b style="color:var(--gold)">명성</b> 획득<br>
+       ④ 명성이 차면 <b style="color:var(--gold)">승급</b> → 계급 상승 + 보상<br>
+       ⑤ 더 높이 수련 → 더 강한 의뢰 → 반복</p>
+    <p style="margin-top:10px;">· 의뢰는 실시간 자동 진행되며, 게임을 꺼도 진행됩니다.</p>
+    <p>· 진행 상황은 브라우저에 자동 저장됩니다.</p>
+    <p style="margin-top:8px; color:var(--accent2)">세부 콘텐츠(스킬·장비·원정 등)는 추후 확장 예정.</p>
+  </div>
+  <div class="reset-row"><button id="btnReset">⚠️ 데이터 초기화 (평민부터 다시)</button></div>
+</div>
+
+<div class="modal-scrim" id="offlineModal">
+  <div class="modal">
+    <h3>🌙 다녀오셨군요!</h3>
+    <p id="offlineText"></p>
+    <div class="reward" id="offlineReward"></div>
+    <button id="offlineClaim">보상 받기</button>
   </div>
 </div>
 
-<div id="gameover">
-  <div class="go-en">The Truth Slips Away</div>
-  <h2>손님은 떠나지 못했다</h2>
-  <p id="goText"></p>
-  <div class="gobtns">
-    <button class="t-btn primary" id="goRetry" style="width:180px">다시 추리한다</button>
-    <button class="t-btn" id="goTitle" style="width:180px">타이틀로</button>
-  </div>
-</div>
+<div id="toast"></div>
 
 <script>
-const $=s=>document.querySelector(s);
+"use strict";
+/* =========================================================
+   기사 육성기 — 수련→의뢰→레벨업(한계돌파) 루프
+   데이터 주도: RANKS / STATS / UPGRADES / QUESTS / ACHIEVEMENTS
+   ========================================================= */
+const SAVE_KEY = "knight_raise_save_v5";
 
-/* 코드 → 챕터 매핑 */
-const CHAPTERS=[
-  {code:"IRA",sin:"WRATH",ko:"분노"},
-  {code:"ACEDIA",sin:"SLOTH",ko:"나태"},
-  {code:"INVIDIA",sin:"ENVY",ko:"질투"},
-  {code:"SUPERBIA",sin:"PRIDE",ko:"교만"},
-  {code:"LUXURIA",sin:"LUST",ko:"색욕"},
-  {code:"GULA",sin:"GLUTTONY",ko:"폭식"},
-  {code:"AVARITIA",sin:"GREED",ko:"탐욕"},
+// 계급: 명성으로 승급 (fameReq = 해당 계급 승급에 필요한 누적 명성)
+const RANKS = [
+  { fameReq:0,    name:"평민",         emoji:"🧑‍🌾", desc:"검을 처음 잡다" },
+  { fameReq:50,   name:"훈련병",       emoji:"🪖",   desc:"땀에 젖은 나날" },
+  { fameReq:120,  name:"병졸",         emoji:"🗡️",  desc:"첫 실전을 치르다" },
+  { fameReq:260,  name:"종자",         emoji:"🛡️",  desc:"기사의 그림자" },
+  { fameReq:480,  name:"정식 기사",    emoji:"🤺",   desc:"서임을 받다" },
+  { fameReq:800,  name:"백전기사",     emoji:"🏇",   desc:"전장의 주인" },
+  { fameReq:1300, name:"기사단장",     emoji:"⚔️",   desc:"기사단을 이끌다" },
+  { fameReq:2100, name:"마스터급 기사", emoji:"👑",   desc:"전설이 되다" },
+];
+const FAME_PER_LEVEL = 1;    // 레벨업 1회당 명성 획득량 (튜닝 예정)
+
+// 능력치 4종
+const STATS = [
+  { id:"str", nm:"힘",   emoji:"💪", color:"var(--str)" },
+  { id:"agi", nm:"민첩", emoji:"🏃", color:"var(--agi)" },
+  { id:"vit", nm:"체력", emoji:"❤️", color:"var(--vit)" },
+  { id:"tec", nm:"검술", emoji:"⚔️", color:"var(--tec)" },
 ];
 
-/* ── 챕터 데이터 ── */
-const DATA={
-  WRATH:{
-    crumb:"첫 번째 손님",sin:"WRATH",ko:"분 노",lat:"Ira",
-    riddle:"한 청년이 어느 골목에서, 한 남자를 때려 죽였습니다. 청년은 도망치지 않았습니다. 그저 식어가는 시신 곁에 오래도록 앉아 있었지요. 날이 밝을 때까지. … 그는, 왜 그랬을까요.",
-    questions:[
-      {q:"청년은 죽은 남자를 전부터 알고 있었습니까?",v:"예",c:"네. 처음 본 사람이 아니었습니다.",clue:-1},
-      {q:"그 남자는 과거에 청년에게 큰 잘못을 저질렀습니까?",v:"예",c:"그렇습니다. 결코 잊을 수 없는 일을요.",clue:0},
-      {q:"청년에게는 소중한 사람이 있었습니까?",v:"예",c:"있었습니다. 단 하나뿐인 사람이.",clue:-1},
-      {q:"그 소중한 사람은 이미 세상을 떠났습니까?",v:"예",c:"…네. 청년이 미처 지키지 못한 사이에요.",clue:-1},
-      {q:"죽은 남자가, 그 소중한 사람을 죽게 한 장본인입니까?",v:"예",c:"바로 그렇습니다. 그 손으로요.",clue:0},
-      {q:"그 소중한 사람은 누군가 일부러 벌인 일로 죽었습니까?",v:"예",c:"사고가 아니었습니다. 분명한 악의였지요.",clue:1},
-      {q:"그 죽음은 어느 철거 현장과 관련이 있습니까?",v:"예",c:"네. 사람들을 내쫓던 그 자리였습니다.",clue:1},
-      {q:"청년은 소중한 사람이 죽은 것과 같은 방식으로 그 남자를 죽였습니까?",v:"예",c:"…똑같이요. 받은 그대로 돌려준 겁니다.",clue:2},
-      {q:"청년은 돈 때문에 그 남자를 죽였습니까?",v:"아니요",c:"아니요. 그가 원한 건 돈이 아니었습니다.",clue:-1},
-      {q:"두 사람은 원래 친구나 동료 사이였습니까?",v:"아니요",c:"아니요. 그런 사이는 결코 아니었습니다.",clue:-1},
-      {q:"청년은 우발적으로, 충동을 못 이겨 죽인 것입니까?",v:"아니요",c:"아니요. … 오래 마음먹은 일이었습니다.",clue:-1},
-      {q:"청년은 살인이 들킬까 두려워 그 자리에 머문 것입니까?",v:"아니요",c:"아니요. 두려움 때문은 아니었습니다.",clue:-1},
-      {q:"소중한 사람은 병으로 죽었습니까?",v:"아니요",c:"아니요. 병이 앗아간 것이 아닙니다.",clue:-1},
-      {q:"청년은 자신이 한 일을 후회하고 있었습니까?",v:"부분적",c:"후회… 라기보다, 다른 감정에 더 가까웠습니다.",clue:-1},
-      {q:"청년은 일부러 도망치지 않고 그 자리에 남은 것입니까?",v:"예",c:"네. 떠날 이유가 없었으니까요.",clue:-1},
-      {q:"그 소중한 사람은 청년의 가족이었습니까?",v:"예",c:"하나뿐인 동생이었습니다.",clue:-1},
-      {q:"그 일을 겪은 뒤, 청년에게는 남은 가족이 아무도 없었습니까?",v:"예",c:"…아무도요. 정말로, 아무도 없었습니다.",clue:3},
-      {q:"청년은 잡혀도 상관없다고 여겼습니까?",v:"예",c:"그렇습니다. 잃을 것이 더는 없었으니.",clue:3},
-      {q:"범행 장소에 CCTV가 있었습니까?",v:"상관없음",c:"그건… 이 이야기와는 상관없습니다.",clue:-1},
-      {q:"그날의 날씨가 사건에 영향을 주었습니까?",v:"상관없음",c:"날씨는 아무 상관이 없었습니다.",clue:-1},
-    ],
-    solveOpts:[
-      {t:"죽은 남자는 청년의 동생을 철거 현장에서 죽인 자였고, 청년은 같은 방식으로 복수한 뒤, 더 잃을 것이 없어 도망치지 않았다.",correct:true},
-      {t:"청년은 빚 때문에 청부를 받아 그 남자를 죽였고, 죄책감에 자리를 떠나지 못했다.",correct:false},
-      {t:"두 사람은 사랑을 두고 다투던 연적이었고, 질투 끝에 벌어진 우발적 살인이었다.",correct:false},
-      {t:"그 남자는 청년의 원수가 아니라, 청년이 사람을 잘못 본 것이었다.",correct:false},
-      {t:"청년은 그 남자에게 사기를 당해 전 재산을 잃고, 분을 참지 못해 죽였다.",correct:false},
-      {t:"청년은 정신을 잃은 상태였고, 자신이 무슨 일을 했는지조차 몰랐다.",correct:false},
-      {t:"죽은 남자가 청년의 동생을 죽였지만, 청년의 살인은 복수가 아니라 단순한 강도였다.",correct:false},
-      {t:"청년은 동생을 죽인 진범을 따로 두고, 엉뚱한 사람을 착각해 죽였다.",correct:false},
-      {t:"청년은 그 남자의 협박에 시달리다 정당방위로 그를 죽였다.",correct:false},
-      {t:"청년과 남자는 같은 조직의 일원이었고, 배신에 대한 응징이었다.",correct:false},
-    ],
-    hints:[
-      "그 청년은 낯선 사람을 죽인 것이 아닙니다. 그가 무엇을, 아니 누구를 잃었는지를 먼저 헤아려 보십시오.",
-      "왜 하필 ‘때려서’였을까요. 죽음의 방식에는 이유가 있습니다 — 그가 잃은 이도, 꼭 그렇게 떠났으니까요.",
-      "그가 도망치지 않은 건 뉘우쳐서가 아닙니다. … 동생이 사라진 세상에, 그에겐 더 돌아갈 곳이 없었던 겁니다."
-    ],
-    trueTitle:"엔딩 · 풀려난 한",
-    trueBody:`<p>청년이 때려 죽인 그 남자는, 한때 어느 철거 현장에서 그의 <b>하나뿐인 동생</b>을 똑같이 때려 죽인 자였습니다.</p>
-      <p>부모도 없이 둘이서만 살아온 형제였지요. 청년은 잠시 자리를 비운 사이 동생을 잃었고 — 동생이 당한 그대로, 같은 방식으로 그 남자를 되갚았습니다.</p>
-      <p>도망치지 않은 까닭은 단순합니다. 동생이 사라진 세상에, 그에게는 돌아갈 곳도 남은 사람도 없었으니까요.</p>`,
-    leave:`청년이 천천히 일어선다. 오래 굳어 있던 얼굴이, 처음으로 아주 조금 풀린다. 그는 식은 그릇을 한참 바라보다, 비로소 한 술을 떠 넘긴다.
-      <div class="lastword">“…이제야, 동생을 보러 갈 수 있겠네요. 잘 먹었습니다, 주인장.”</div>
-      그는 깊이 고개를 숙이고, 가벼워진 걸음으로 문을 열어 안개 속으로 걸어 나간다.`,
-    memory:`비가 내리는 철거 현장. 누군가 어린 사람을 거칠게 끌어내고 있다. 그 광경을 멀찍이서 바라보며, 우산 아래의 한 남자가 나직이 말한다. “예정대로 진행해. … 본보기가 필요하니까.”<br><br>— 그 남자의 뒷모습이, 어쩐지 낯설지 않다.`,
-    fragNo:1,nextCode:"ACEDIA",
-    normalTitle:"엔딩 · 식어버린 그릇",
-    normalBody:`<p>당신의 이야기는 틀리지 않았습니다. 청년은 잃은 이를 위해, 받은 그대로 되갚았지요.</p>
-      <p>하지만 무언가가 채 헤아려지지 못했습니다. 청년은 천천히 일어나, 끝내 아무 말도 없이 문을 나섭니다. 안개가 그를 삼키고, 식당에는 다시 정적만 남습니다.</p>
-      <p class="lastword">— 주인은 식은 그릇을 오래 바라보다, 자기 앞에도 한 그릇을 조용히 내려놓는다. 그리고, 더는 아무것도 하지 않는다.</p>
-      <p class="sig">진실의 조각을 모두 모으면, 다른 끝에 닿을 수 있습니다.</p>`
-  },
-
-  SLOTH:{
-    crumb:"두 번째 손님",sin:"SLOTH",ko:"나 태",lat:"Acedia",
-    riddle:"한 사내가, 굳게 잠긴 철문 앞에서 밤새 울고 있었습니다. 안에서는, 아무 소리도 나지 않았지요. 그는 — 왜 우는 걸까요.",
-    questions:[
-      {q:"그 철문은, 사내가 직접 잠근 것입니까?",v:"예",c:"네. 그의 손으로 잠갔습니다.",clue:0},
-      {q:"사내는 누군가의 지시를 받고 그 일을 한 것입니까?",v:"예",c:"그렇습니다. 시키는 대로 했을 뿐이라 여겼지요.",clue:3},
-      {q:"사내는 돈 때문에 그 일을 맡았습니까?",v:"예",c:"…빚에 쫓기고 있었습니다.",clue:3},
-      {q:"잠긴 문 안에, 사람이 있었습니까?",v:"예",c:"네. 여럿이 있었습니다.",clue:-1},
-      {q:"사내는 문을 잠그기 전에, 안에 누가 있는지 확인했습니까?",v:"아니요",c:"…아니요. 그것이, 그의 가장 큰 죄입니다.",clue:1},
-      {q:"사내는 안의 사람들에게 무슨 일이 생길지 신경 썼습니까?",v:"아니요",c:"아니요. 아무 생각도 하지 않았습니다.",clue:1},
-      {q:"그 문 안에서 불이 났습니까?",v:"예",c:"네. 갇힌 채로요.",clue:-1},
-      {q:"갇힌 사람들이 그 안에서 목숨을 잃었습니까?",v:"예",c:"…빠져나오지 못했습니다.",clue:-1},
-      {q:"죽은 사람들 중에, 사내의 가족이 있었습니까?",v:"예",c:"…네. 있었습니다.",clue:2},
-      {q:"그 가족은 사내의 어머니였습니까?",v:"예",c:"그를 길러준, 단 하나의 사람이었지요.",clue:2},
-      {q:"사내는 어머니가 그 안에 있는 줄 알고도 문을 잠갔습니까?",v:"아니요",c:"아니요. 알았다면… 결코 그러지 못했겠지요.",clue:-1},
-      {q:"사내가 직접 불을 지른 것입니까?",v:"아니요",c:"불씨를 던진 건 그가 아닙니다. 다만, 막을 수 있었지요.",clue:-1},
-      {q:"사내는 그 일이 위험하다는 걸 알면서도 외면했습니까?",v:"예",c:"…알고도, 아무것도 하지 않았습니다.",clue:1},
-      {q:"사내는 도박에 빠져 있었습니까?",v:"예",c:"그 빚이, 그를 그 자리로 끌고 갔습니다.",clue:3},
-      {q:"사내는 처음부터 사람을 해칠 생각이었습니까?",v:"아니요",c:"아니요. 그는 그저… 아무 생각이 없었습니다.",clue:-1},
-      {q:"사내와 갇힌 사람들은 원래 원수 사이였습니까?",v:"아니요",c:"아니요. 그런 사이가 아니었습니다.",clue:-1},
-      {q:"사내는 그 뒤로 죄를 갚으려 누군가를 단죄했습니까?",v:"예",c:"…그 일을 지시한 자를, 같은 방식으로요.",clue:-1},
-      {q:"사내는 그 철문 앞을 오래 떠나지 못했습니까?",v:"예",c:"네. 밤마다, 그 문 앞으로 돌아왔습니다.",clue:-1},
-      {q:"그 동네에 비가 자주 내렸습니까?",v:"상관없음",c:"날씨는… 이 이야기와 상관없습니다.",clue:-1},
-      {q:"철문의 자물쇠가 특별히 비싼 것이었습니까?",v:"상관없음",c:"무엇으로 잠갔는지는, 중요하지 않습니다.",clue:-1},
-    ],
-    solveOpts:[
-      {t:"사내는 빚 때문에 돈을 받고 농성 건물의 문을 밖에서 잠갔고, 안에 누가 있는지 확인조차 하지 않았다. 불이 났고 — 갇혀 죽은 이들 중엔 그의 어머니가 있었다.",correct:true},
-      {t:"사내는 어머니를 일부러 그 안에 가두어 죽이고, 죄책감에 문 앞을 떠나지 못했다.",correct:false},
-      {t:"사내는 안에 갇힌 연인을 구하지 못해, 슬픔에 밤새 울고 있었다.",correct:false},
-      {t:"사내는 강도질을 하려다 사람을 가두었고, 그 일이 들킬까 두려워 울었다.",correct:false},
-      {t:"사내는 불을 직접 질러 사람들을 죽인 방화범이었고, 양심의 가책에 시달렸다.",correct:false},
-      {t:"사내는 문을 잠그라는 지시를 거부했다가, 대신 죽은 동료를 애도하고 있었다.",correct:false},
-      {t:"사내는 어머니를 구하려 문을 열려다 실패했고, 그래서 통곡한 것이다.",correct:false},
-      {t:"사내는 빚쟁이에게 쫓겨 그 건물에 숨었다가, 화재에서 홀로 살아남아 죄책감에 빠졌다.",correct:false},
-      {t:"사내는 철거를 반대하던 주민이었고, 동료들이 갇혀 죽는 걸 막지 못했다.",correct:false},
-      {t:"사내는 문을 잠갔지만 안은 비어 있었고, 그저 죄를 지었다는 망상에 시달렸다.",correct:false},
-    ],
-    hints:[
-      "그가 운 건 슬퍼서만은 아닙니다. 그 굳게 잠긴 문을 — 누가 잠갔는지를 먼저 떠올려 보십시오.",
-      "그는 안에 누가 있는지 묻지도 않았습니다. 그 무심함이, 그의 진짜 죄입니다.",
-      "잠긴 문 안에서 끝내 빠져나오지 못한 사람들 중에… 그를 길러준 단 한 사람이 있었습니다."
-    ],
-    trueTitle:"엔딩 · 잠긴 문",
-    trueBody:`<p>사내는 빚에 쫓기다, 돈을 받고 농성 건물의 문을 밖에서 잠그는 일을 맡았습니다. 안에 누가 있는지는 — <b>묻지도, 보지도 않았습니다.</b> 그저 시키는 대로요.</p>
-      <p>그 무심함이 죄였습니다. 불이 났고, 갇힌 이들은 빠져나오지 못했습니다. 한참 뒤에야 그는 알았습니다. 그 문 안에, <b>자신을 길러준 어머니</b>가 있었다는 것을.</p>
-      <p>그날 이후 그는 밤마다 그 철문 앞으로 돌아와 울었습니다. 열 수 없는 문을, 이미 늦어버린 문을요.</p>`,
-    leave:`사내가 떨리는 손으로 그릇을 감싼다. 오래 식은 국물을, 그는 한 술 떠 넘긴다.
-      <div class="lastword">“…어머니. 이번엔, 문을 열어드릴게요. 늦어서… 정말 죄송합니다.”</div>
-      그는 처음으로 그 문이 아닌 다른 문 — 식당의 문을 향해 돌아서고, 천천히 안개 속으로 걸어 나간다.`,
-    memory:`돈 봉투가 건네지는 소리. 우산을 든 한 남자가, 사내의 어깨를 두드리며 무심히 말한다. “안에 뭐가 있든 신경 쓰지 마. 자넨 문만 잠그면 돼.”<br><br>— 그 무심한 목소리가, 어쩐지 내 것과 닮아 있다.`,
-    fragNo:2,nextCode:"INVIDIA",
-    normalTitle:"엔딩 · 열리지 않는 문",
-    normalBody:`<p>당신의 이야기는 틀리지 않았습니다. 그 문을 잠근 건 사내였고, 그는 안을 들여다보지 않았지요.</p>
-      <p>하지만 무언가가 채 헤아려지지 못했습니다. 사내는 다시 그 철문 쪽으로 고개를 돌리고, 끝내 일어서지 못합니다. 식당에는 무거운 정적만 남습니다.</p>
-      <p class="lastword">— 주인은 그 모습을 오래 바라보다, 조용히 그릇을 거둔다. 무언가, 자신도 잊고 있던 죄의 냄새가 스친다.</p>
-      <p class="sig">진실의 조각을 모두 모으면, 다른 끝에 닿을 수 있습니다.</p>`
-  },
-
-  ENVY:{
-    crumb:"세 번째 손님",sin:"ENVY",ko:"질 투",lat:"Invidia",
-    riddle:"한 사내가, 제 손으로 가족을 해쳤습니다. 그러나 그는 끝까지 말했습니다. — “나는, 죽이지 않았다.” 도대체, 무슨 뜻일까요.",
-    questions:[
-      {q:"사내는 정말로 제 손으로 가족을 해친 것입니까?",v:"예",c:"…그 손으로 한 것은, 맞습니다.",clue:-1},
-      {q:"그런데도 ‘죽이지 않았다’는 그의 말에, 일리가 있습니까?",v:"예",c:"…그렇습니다. 그 말에는, 까닭이 있습니다.",clue:-1},
-      {q:"사내는 그 일을 저지를 때, 제정신이 아니었습니까?",v:"예",c:"네. 그는 자신이 아니었습니다.",clue:2},
-      {q:"누군가 사내에게 약물을 먹였습니까?",v:"예",c:"…그를 무너뜨리려는 자가요.",clue:2},
-      {q:"사내는 한때 누군가 밑에서 인정받던 사람이었습니까?",v:"예",c:"둘도 없는 일등공신이었지요.",clue:0},
-      {q:"그는 어느 순간 그 자리에서 밀려났습니까?",v:"예",c:"…신참에게, 자리를 빼앗겼습니다.",clue:1},
-      {q:"사내는 자신을 버린 자를 시기하고 있었습니까?",v:"예",c:"‘왜 나만’ — 그 마음이 그를 좀먹었습니다.",clue:1},
-      {q:"버려진 뒤, 사내는 술에 의지해 무너져 갔습니까?",v:"예",c:"네. 바닥까지 무너졌지요.",clue:-1},
-      {q:"사내를 그렇게 망가뜨린 것이, 그를 버린 바로 그 자입니까?",v:"예",c:"…모든 것이, 그자의 손끝에서 그려진 일이었습니다.",clue:3},
-      {q:"사내는 가족을 미워해서 해친 것입니까?",v:"아니요",c:"아니요. 가족은… 그의 마지막 버팀목이었습니다.",clue:-1},
-      {q:"사내는 돈 문제로 가족과 다투다 그런 것입니까?",v:"아니요",c:"아니요. 그런 다툼은 없었습니다.",clue:-1},
-      {q:"사내는 처음부터 가족을 해칠 마음이 있었습니까?",v:"아니요",c:"결코요. 정신이 들었을 땐, 이미 늦었습니다.",clue:-1},
-      {q:"그 일이 벌어진 건, 사내가 버려진 뒤의 일입니까?",v:"예",c:"네. 모든 것을 잃은 다음이었습니다.",clue:1},
-      {q:"사내가 시기한 상대는, 그를 버린 윗사람입니까?",v:"부분적",c:"윗사람도, 그 자리를 차지한 신참도… 모두요.",clue:-1},
-      {q:"사내는 나중에야 자신이 누군가에게 이용당했음을 깨달았습니까?",v:"예",c:"…정신이 든 뒤에야, 알았습니다.",clue:3},
-      {q:"사내가 끝내 단죄한 대상은, 사고 뒤에도 멀쩡히 살아가던 자들입니까?",v:"예",c:"‘너희는 어떻게 아무 일 없던 듯 사느냐’ — 그렇게요.",clue:-1},
-      {q:"사내를 망가뜨린 자는, 그 일을 즐기고 있었습니까?",v:"예",c:"…사람을 도구처럼 부수는 자였으니까요.",clue:3},
-      {q:"사내가 인정받던 그 ‘일’은, 떳떳한 일이었습니까?",v:"아니요",c:"…자랑할 만한 일은, 아니었습니다.",clue:0},
-      {q:"그 동네 사람들은 사내를 잘 알고 있었습니까?",v:"상관없음",c:"그건 이 이야기와 상관없습니다.",clue:-1},
-      {q:"사내가 마시던 술이 특별한 것이었습니까?",v:"상관없음",c:"무엇을 마셨는지는, 중요하지 않습니다.",clue:-1},
-    ],
-    solveOpts:[
-      {t:"사내는 한 조직의 일등공신이었으나 버려지고 신참에게 밀려났고, 그 시기심으로 무너진 그를 윗사람이 약물로 마저 망가뜨렸다. 제정신이 아닌 채 가족을 해쳤고, 정신이 든 뒤 그것이 그자의 설계였음을 깨달았다.",correct:true},
-      {t:"사내는 가족의 유산을 노리고 그들을 해친 뒤, 죄를 약물 탓으로 돌리려 했다.",correct:false},
-      {t:"사내는 가족이 자신을 배신했다고 믿어, 질투에 눈멀어 직접 그들을 죽였다.",correct:false},
-      {t:"사내는 술에 취해 우발적으로 가족을 해쳤을 뿐, 다른 배경은 없었다.",correct:false},
-      {t:"사내는 정신병을 앓고 있었고, 환각 속에서 가족을 적으로 착각했다.",correct:false},
-      {t:"사내는 누군가의 협박에 못 이겨 가족을 해치고, 그 사실을 부인하고 있었다.",correct:false},
-      {t:"사내는 가족을 해치지 않았고, 진범이 따로 있는데 누명을 쓴 것이다.",correct:false},
-      {t:"사내는 일등공신이었다가 밀려났지만, 가족을 해친 건 순전히 그 자신의 분노 때문이었다.",correct:false},
-      {t:"사내는 약물에 중독되어 스스로 가족을 떠났고, 그 죄책감을 ‘죽이지 않았다’는 말로 회피했다.",correct:false},
-      {t:"사내는 윗사람을 시기해 그를 해치려다, 실수로 가족을 다치게 했다.",correct:false},
-    ],
-    hints:[
-      "그가 ‘죽이지 않았다’ 말한 건 거짓이 아닙니다. 그 손이 움직일 때, 그는 ‘그 자신’이었을까요.",
-      "그를 무너뜨린 건 칼이 아니라, ‘나만 빼고 다 멀쩡하다’는 마음입니다. 그는 누구에게, 무엇을 빼앗겼을까요.",
-      "술로 무너진 그를, 누군가 약으로 마저 망가뜨렸습니다. 그 손은 — 그를 버린 바로 그 손이었습니다."
-    ],
-    trueTitle:"엔딩 · 빼앗긴 자리",
-    trueBody:`<p>사내는 한때 둘도 없는 <b>일등공신</b>이었습니다. 더러운 일도 자부심으로 해냈지요. 그러나 어느 날 윗사람은 그를 버리고, 신참에게 그 자리를 내주었습니다.</p>
-      <p>‘왜 나만.’ 그 시기심이 그를 좀먹었고, 술로 무너지던 그를 — 윗사람은 <b>약물로 마저 망가뜨렸습니다.</b> 제정신이 아닌 채로, 사내는 자기 손으로 마지막 버팀목이던 가족을 해치고 말았습니다.</p>
-      <p>정신이 들었을 때는 모든 것이 끝나 있었고, 그제야 깨달았습니다. 이 모든 것이 — 자신을 버린 그자의 손끝에서 그려진 그림이었음을. “나는 죽이지 않았다”는 그의 말은, 그래서 거짓이 아니었습니다.</p>`,
-    leave:`사내가 오래 쥐고 있던 주먹을, 천천히 편다. 떨리던 손이 비로소 잠잠해진다. 그는 그릇을 들어 한 술 넘긴다.
-      <div class="lastword">“…나를 부순 게 누구였는지, 이제는 압니다. 그거면… 됐어요. 더는, 부럽지 않으니까.”</div>
-      그는 무거운 어깨를 처음으로 펴고, 안개 속으로 천천히 걸어 나간다.`,
-    memory:`낯익은 사무실. 한 남자가 충직한 부하의 어깨를 두드리다, 이내 다른 신참에게로 돌아선다. “자네는 이제 됐네. 수고했어.” — 버려지는 자의 눈빛을, 그 남자는 거들떠보지도 않는다.<br><br>— 그 무심한 옆얼굴이, 거울 속 내 얼굴과 겹친다.`,
-    fragNo:3,nextCode:"SUPERBIA",
-    normalTitle:"엔딩 · 식지 않는 시기",
-    normalBody:`<p>당신의 이야기는 틀리지 않았습니다. 사내는 버려졌고, 제정신이 아닌 채 돌이킬 수 없는 일을 저질렀지요.</p>
-      <p>하지만 무언가가 채 헤아려지지 못했습니다. 사내의 눈에는 여전히 식지 않은 불씨가 남아, 끝내 그릇에 손을 대지 못합니다. 식당에는 무거운 정적만 흐릅니다.</p>
-      <p class="lastword">— 주인은 그 눈빛을 오래 들여다본다. 어쩐지, 저 원망의 끝에 자신이 서 있는 듯한 서늘함이 스친다.</p>
-      <p class="sig">진실의 조각을 모두 모으면, 다른 끝에 닿을 수 있습니다.</p>`
-  },
-
-  PRIDE:{
-    crumb:"네 번째 손님",sin:"PRIDE",ko:"교 만",lat:"Superbia",
-    riddle:"한 남자가, 자신이 지키려던 사람들을 죽게 만들었습니다. 그런데도 그는 — 스스로를 영웅이라 믿었습니다. 어째서일까요.",
-    questions:[
-      {q:"그 남자는 사람들을 이끄는 위치에 있었습니까?",v:"예",c:"네. 모두가 그를 믿고 따랐습니다.",clue:0},
-      {q:"그는 어떤 싸움의 ‘지도자’였습니까?",v:"예",c:"철거에 맞서던 농성의, 우두머리였지요.",clue:0},
-      {q:"사람들이 죽은 것은, 그 농성 현장에서였습니까?",v:"예",c:"…그가 끝까지 지키려던 그 자리에서요.",clue:-1},
-      {q:"그가 좀 더 일찍 물러섰다면, 사람들이 살 수 있었습니까?",v:"예",c:"…아마도요. 그 자신도, 그것을 압니다.",clue:1},
-      {q:"사람들을 그 자리에 남게 한 건, 그의 고집이었습니까?",v:"예",c:"물러설 수 없다는 — 그 자존심이었지요.",clue:1},
-      {q:"그는 자신의 책임을 인정하고 있습니까?",v:"아니요",c:"아니요. 끝끝내, 인정하지 못합니다.",clue:2},
-      {q:"그는 ‘진짜 죄인은 따로 있다’고 믿습니까?",v:"예",c:"네. 그래서 자신의 손은 깨끗하다 여기지요.",clue:2},
-      {q:"그는 그 믿음으로, 다른 누군가를 단죄했습니까?",v:"예",c:"스스로 심판자가 되어서요.",clue:3},
-      {q:"그가 사람을 죽인 방식은, 충동적이기보다 의식(儀式)에 가까웠습니까?",v:"예",c:"…죄를 묻고, 선고하듯이요.",clue:3},
-      {q:"그는 자신을 정의의 집행자라 여깁니까?",v:"예",c:"가장 정의로운 자라고, 믿습니다.",clue:-1},
-      {q:"그는 돈이나 사사로운 원한으로 사람을 죽였습니까?",v:"아니요",c:"아니요. 그의 명분은… 늘 ‘정의’였습니다.",clue:-1},
-      {q:"그가 단죄한 자는, 그 비극에 책임이 있는 자였습니까?",v:"예",c:"네. 다만, 그 자신도 책임에서 자유롭지 않았지요.",clue:-1},
-      {q:"그는 자신이 따르던 이들에게 미안함을 느낍니까?",v:"부분적",c:"…느끼지만, 그것을 ‘죄’라 부르진 못합니다.",clue:2},
-      {q:"그는 후회 대신, 더 큰 명분으로 도피하고 있습니까?",v:"예",c:"네. 단죄가, 그의 도피처였습니다.",clue:3},
-      {q:"그는 사람들이 죽기 전, 물러설 기회가 있었습니까?",v:"예",c:"…여러 번 있었습니다. 그가 거절했을 뿐.",clue:1},
-      {q:"그는 가장 흐트러짐 없이, 당당해 보이는 사람입니까?",v:"예",c:"네. 일곱 중 가장 꼿꼿하지요. …그것이 갑옷입니다.",clue:-1},
-      {q:"그가 끝내 외면하는 진실은, 자기 탓으로 사람들이 죽었다는 것입니까?",v:"예",c:"…그렇습니다. 그 하나만은, 보지 못합니다.",clue:2},
-      {q:"그는 처음부터 사람들을 위험에 빠뜨릴 생각이었습니까?",v:"아니요",c:"아니요. 그는 정말로, 지키려 했습니다.",clue:-1},
-      {q:"농성장 건물이 몇 층이었는지가, 중요합니까?",v:"상관없음",c:"그건 이 이야기와 상관없습니다.",clue:-1},
-      {q:"그가 입은 옷차림이 사건과 관련이 있습니까?",v:"상관없음",c:"차림새는, 아무 상관이 없습니다.",clue:-1},
-    ],
-    solveOpts:[
-      {t:"그는 철거 농성의 지도자였고, 끝까지 물러서지 않은 그의 자존심이 사람들을 그 자리에서 죽게 했다. 그러나 그 책임을 끝내 인정하지 못한 채, 스스로 심판자가 되어 다른 이를 단죄했다.",correct:true},
-      {t:"그는 일부러 사람들을 사지로 몰아넣고, 영웅 행세를 하며 이득을 챙긴 사기꾼이었다.",correct:false},
-      {t:"그는 사람들을 구하려다 실패했을 뿐 아무 잘못이 없었고, 죄책감은 착각이었다.",correct:false},
-      {t:"그는 농성을 배신하고 철거 측에 붙어, 동료들을 팔아넘긴 변절자였다.",correct:false},
-      {t:"그는 사람들을 죽게 한 진짜 범인을 알면서도, 돈을 받고 침묵했다.",correct:false},
-      {t:"그는 정신을 잃은 채 사람들을 해쳤고, 자신이 영웅이라 믿는 망상에 빠졌다.",correct:false},
-      {t:"그는 지도자가 아니라 평범한 주민이었고, 우연히 살아남은 죄책감에 시달렸다.",correct:false},
-      {t:"그는 사람들을 구한 진짜 영웅이었지만, 트라우마로 자신을 죄인이라 착각했다.",correct:false},
-      {t:"그는 복수심에 눈먼 사람이었을 뿐, 정의나 명분 따위는 핑계였다.",correct:false},
-      {t:"그는 자신의 고집으로 사람들을 죽게 했고, 그 죄를 인정하며 스스로 목숨을 끊으려 했다.",correct:false},
-    ],
-    hints:[
-      "그가 영웅을 자처하는 건, 영웅이어서가 아닙니다. 사람들이 그를 ‘따랐다’는 사실에서 시작해 보십시오.",
-      "사람들을 그 자리에 묶어둔 건 적이 아니라, 물러설 수 없다는 그의 자존심이었습니다.",
-      "그는 자기 죄만은 끝내 보지 못합니다. 그래서 남을 심판하는 자리로 도망친 겁니다 — 가장 교만한 방식으로요."
-    ],
-    trueTitle:"엔딩 · 심판자의 갑옷",
-    trueBody:`<p>그는 철거에 맞선 농성의 <b>지도자</b>였습니다. 사람들이 그를 믿고 따랐지요. 그러나 ‘물러설 수 없다’는 그의 자존심이, 끝내 사람들을 그 자리에 남게 했습니다.</p>
-      <p>여러 번 피할 기회가 있었지만 그는 거절했고 — 그 고집의 대가로, 따르던 이들이 그곳에서 목숨을 잃었습니다.</p>
-      <p>그러나 그는 그 죄를 차마 보지 못했습니다. “진짜 죄인은 따로 있다”며 스스로 심판자가 되어, 죄 있는 자를 의식처럼 단죄했지요. 가장 정의로워 보이는 그 모습은 — 사실, 자기 죄를 외면하려는 가장 교만한 갑옷이었습니다.</p>`,
-    leave:`남자가 꼿꼿하던 등을, 천천히 숙인다. 처음으로, 갑옷이 벗겨진 사람처럼. 그는 식은 그릇을 들어 한 술 넘긴다.
-      <div class="lastword">“…내가, 그들을 죽였습니다. 이제는… 그 말을 할 수 있겠군요. 심판받아야 할 건, 나였어.”</div>
-      그는 더는 누구도 심판하지 않는 얼굴로, 조용히 안개 속으로 걸어 나간다.`,
-    memory:`연단 위의 한 남자가, 군중을 향해 외친다. “끝까지 버팁시다! 물러서는 자가 지는 겁니다!” — 그리고 그 광경을 멀리서 지켜보던 또 다른 남자가, 입꼬리를 올리며 중얼거린다. “좋아. 저 자존심이 알아서 일을 끝내주겠군.”<br><br>— 그 비릿한 미소가, 어쩐지 낯익다.`,
-    fragNo:4,nextCode:"LUXURIA",
-    normalTitle:"엔딩 · 벗지 못한 갑옷",
-    normalBody:`<p>당신의 이야기는 틀리지 않았습니다. 그의 고집이 사람들을 죽게 했고, 그는 스스로 심판자가 되었지요.</p>
-      <p>하지만 무언가가 채 헤아려지지 못했습니다. 남자는 끝내 등을 꼿꼿이 세운 채, 자기 죄만은 보지 못합니다. 갑옷을 입은 그대로, 그는 문을 나섭니다.</p>
-      <p class="lastword">— 주인은 그 뒷모습을 바라본다. 누군가의 자존심을 부추겨 일을 끝낸 자가, 과연 누구였던가… 희미한 의문이 스친다.</p>
-      <p class="sig">진실의 조각을 모두 모으면, 다른 끝에 닿을 수 있습니다.</p>`
-  },
-
-  LUST:{
-    crumb:"다섯 번째 손님",sin:"LUST",ko:"색 욕",lat:"Luxuria",
-    riddle:"한 여인이, 자신을 무너뜨린 자들을 하나씩 불러 모았습니다. 미소로, 다정함으로요. 그리고 그들은 다시 돌아오지 못했습니다. 그녀는 — 무엇을 되갚으려 한 걸까요.",
-    questions:[
-      {q:"여인은 그 남자들을 스스로 불러 모은 것입니까?",v:"예",c:"네. 그녀가 먼저 손을 내밀었습니다.",clue:-1},
-      {q:"그녀가 그들을 유인한 것은, 단죄하기 위해서였습니까?",v:"예",c:"…미소 뒤에, 칼이 있었지요.",clue:3},
-      {q:"여인은 한때 어떤 힘 있는 자와 가까운 사이였습니까?",v:"예",c:"…그의 곁에 있던 여자였습니다.",clue:0},
-      {q:"그 관계는 떳떳한 사이였습니까?",v:"아니요",c:"아니요. 숨겨진, 그늘의 관계였지요.",clue:0},
-      {q:"그녀는 그 관계 속에서, 자기도 모르게 무언가를 흘렸습니까?",v:"예",c:"…베갯머리의 말들이, 칼이 될 줄은 몰랐습니다.",clue:1},
-      {q:"그녀가 흘린 것이, 누군가를 해치는 데 쓰였습니까?",v:"예",c:"네. 그녀의 사람들을요.",clue:1},
-      {q:"그 일로 그녀의 가족이 희생되었습니까?",v:"예",c:"…그녀가 사랑하던 이들이요.",clue:1},
-      {q:"여인은 자신의 욕망이 가족을 죽였다고 여깁니까?",v:"예",c:"‘내 손으로 그들을 넘겼다’ — 그렇게요.",clue:1},
-      {q:"가족을 잃은 뒤, 그녀는 스스로를 밑바닥으로 던졌습니까?",v:"예",c:"…자신을 벌하듯이요.",clue:2},
-      {q:"그녀가 몸을 던진 그 삶은, 일종의 자기 처벌이었습니까?",v:"예",c:"네. 가장 가혹한 방식의요.",clue:2},
-      {q:"여인을 무너뜨린 것은, 결국 남자들의 욕망이었습니까?",v:"예",c:"…그 욕망을, 그녀는 거꾸로 쥐었습니다.",clue:3},
-      {q:"그녀는 그 욕망을 미끼로 죄인들을 유인한 것입니까?",v:"예",c:"자신을 무너뜨린 것으로, 그들을 무너뜨렸지요.",clue:3},
-      {q:"여인은 연민받기를 원했습니까?",v:"아니요",c:"아니요. 그녀는 동정을 구걸하지 않았습니다.",clue:-1},
-      {q:"그녀가 노린 자들은, 그 비극에 책임이 있는 자들입니까?",v:"예",c:"네. 그녀의 가족을 짓밟은 자들이었습니다.",clue:-1},
-      {q:"그녀는 돈을 벌려고 그 남자들을 불렀습니까?",v:"아니요",c:"아니요. 돈이 목적이 아니었습니다.",clue:-1},
-      {q:"그녀가 가족을 직접 해친 것입니까?",v:"아니요",c:"아니요. 그녀의 손이 아니라, 그녀의 ‘말’이 빌미가 된 겁니다.",clue:1},
-      {q:"여인은 자신이 흘린 정보가 그렇게 쓰일 줄 알았습니까?",v:"아니요",c:"몰랐습니다. 그래서 더, 자신을 용서하지 못했지요.",clue:-1},
-      {q:"그녀가 가까이했던 그 힘 있는 자가, 모든 일의 배후였습니까?",v:"예",c:"…정을 미끼로 그녀에게서 빼낸 뒤, 버린 자였습니다.",clue:0},
-      {q:"여인이 쓰던 향수가 사건과 관련이 있습니까?",v:"상관없음",c:"향기는, 이 이야기와 상관없습니다.",clue:-1},
-      {q:"그녀가 사는 곳이 어디였는지가 중요합니까?",v:"상관없음",c:"어디였는지는, 중요하지 않습니다.",clue:-1},
-    ],
-    solveOpts:[
-      {t:"여인은 힘 있는 자의 숨겨진 연인이었고, 정을 미끼로 그녀에게서 빼낸 정보가 그녀의 가족을 죽음으로 몰았다. 자신을 벌하듯 밑바닥으로 떨어진 그녀는, 자신을 무너뜨린 그 욕망을 거꾸로 무기 삼아 죄인들을 유인해 단죄했다.",correct:true},
-      {t:"여인은 돈을 노린 꽃뱀이었고, 남자들을 유인해 금품을 빼앗다 살인까지 저질렀다.",correct:false},
-      {t:"여인은 질투에 눈멀어, 자신을 버린 남자와 그의 새 연인들을 차례로 죽였다.",correct:false},
-      {t:"여인은 가족을 직접 죽이고, 그 죄를 남자들에게 뒤집어씌우려 했다.",correct:false},
-      {t:"여인은 사랑에 배신당한 뒤, 모든 남자를 증오해 무차별로 해친 것이다.",correct:false},
-      {t:"여인은 누군가의 사주를 받아 청부로 남자들을 유인해 죽인 살인 청부업자였다.",correct:false},
-      {t:"여인은 정신적으로 무너져, 자신이 누구를 부르는지도 모른 채 사람들을 해쳤다.",correct:false},
-      {t:"여인은 가족을 잃은 슬픔에 스스로 무너졌고, 남들을 끌어들여 함께 무너지려 했다.",correct:false},
-      {t:"여인은 힘 있는 자의 정실부인이었고, 외도 상대들에게 복수한 것이다.",correct:false},
-      {t:"여인은 자신을 팔아넘긴 가족에게 원한을 품고, 그 가족을 단죄한 것이다.",correct:false},
-    ],
-    hints:[
-      "그녀는 동정을 구걸하지 않습니다. 먼저 물어야 할 건 — 그녀가 한때, 누구의 곁에 있었는가입니다.",
-      "그녀를 무너뜨린 건 칼이 아니라, 그녀 자신도 모르게 흘린 ‘말’이었습니다. 그 말이 누구를 향했을까요.",
-      "자신을 가장 밑바닥으로 던진 그 욕망을 — 그녀는 이제 거꾸로 쥐고, 죄인들을 부르는 미끼로 씁니다."
-    ],
-    trueTitle:"엔딩 · 거꾸로 쥔 칼",
-    trueBody:`<p>그녀는 힘 있는 자의 <b>숨겨진 연인</b>이었습니다. 그 관계에 취해, 그녀는 자기도 모르게 마을의 신뢰와 정보를 그에게 흘렸지요. 베갯머리의 말들이 — 철거의 칼이 될 줄은, 몰랐습니다.</p>
-      <p>그 대가로 그녀의 가족이 그 참사에 휩쓸려 죽었습니다. ‘내 욕망이 내 가족을 넘겼다.’ 그 자기혐오로, 그녀는 스스로를 가장 낮은 자리로 던졌습니다.</p>
-      <p>그러나 무너지기만 하지는 않았습니다. 자신을 무너뜨린 것이 남자들의 욕망이었으니 — 그녀는 그 욕망을 거꾸로 쥐고, 미소로 죄인들을 불러 모아 하나씩 되갚았습니다.</p>`,
-    leave:`여인이 옅게 웃는다. 이번엔, 미끼가 아닌 진짜 웃음으로. 그녀는 그릇을 들어 천천히 한 술 넘긴다.
-      <div class="lastword">“…이제 그만, 나를 미워해도 될까요. 가족들한테… 미안하다고, 말하러 가야겠어요.”</div>
-      그녀는 누구도 유혹하지 않는 맨얼굴로, 조용히 안개 속으로 걸어 나간다.`,
-    memory:`어두운 방. 한 남자가 여인의 머리를 쓸어넘기며 다정히 속삭인다. “그 사람들 얘기, 좀 더 해줘. … 당신이니까 묻는 거야.” 그러나 그 눈은, 이미 다른 곳을 셈하고 있다.<br><br>— 정을 미끼로 사람을 비우던 그 손길이, 어쩐지 내 것이었던 것만 같다.`,
-    fragNo:5,nextCode:"GULA",
-    normalTitle:"엔딩 · 지워지지 않는 미소",
-    normalBody:`<p>당신의 이야기는 틀리지 않았습니다. 그녀의 말이 빌미가 되었고, 그녀는 그 욕망을 거꾸로 쥐었지요.</p>
-      <p>하지만 무언가가 채 헤아려지지 못했습니다. 여인은 미끼와도 같은 미소를 끝내 거두지 못한 채, 자리에서 일어섭니다. 식당에는 서늘한 정적만 남습니다.</p>
-      <p class="lastword">— 주인은 그 미소를 오래 바라본다. 정을 미끼로 누군가를 비워낸 손길이… 어쩐지, 자신의 것이었던 듯한 한기가 스친다.</p>
-      <p class="sig">진실의 조각을 모두 모으면, 다른 끝에 닿을 수 있습니다.</p>`
-  },
-
-  GLUTTONY:{
-    crumb:"여섯 번째 손님",sin:"GLUTTONY",ko:"폭 식",lat:"Gula",
-    riddle:"한 사람이 식당에 앉아 있습니다. 비쩍 말랐는데도, 앞에 놓인 따뜻한 스프를 한 술도 뜨지 못합니다. 그저 김이 식어가는 그릇을, 빈 눈으로 응시할 뿐. 그는 — 왜 먹지 못할까요.",
-    questions:[
-      {q:"그는 먹고 싶지 않아서 못 먹는 것입니까?",v:"아니요",c:"아니요. …먹지 ‘못하는’ 겁니다.",clue:-1},
-      {q:"음식을 보면, 그는 어떤 기억이 떠오르는 것입니까?",v:"예",c:"…떠올리지 않으려 해도, 떠오르는 것이 있습니다.",clue:2},
-      {q:"그는 과거에 오래 굶주린 적이 있습니까?",v:"예",c:"…살기 위해, 버텨야 했던 시간이 있었지요.",clue:1},
-      {q:"그 굶주림은, 그가 어딘가에 갇혀 있었기 때문입니까?",v:"예",c:"네. 빠져나올 수 없는 곳에요.",clue:0},
-      {q:"그가 갇힌 것은, 건물이 무너졌기 때문입니까?",v:"예",c:"…무리한 철거가, 그 건물을 무너뜨렸습니다.",clue:0},
-      {q:"그는 그 안에 혼자 갇혀 있었습니까?",v:"아니요",c:"아니요. …처음엔, 혼자가 아니었습니다.",clue:2},
-      {q:"그와 함께 갇힌 사람들이 있었습니까?",v:"예",c:"…그가 사랑하던 이들이요.",clue:2},
-      {q:"구조는 끝내 오지 않았습니까?",v:"예",c:"…아무도, 오지 않았습니다.",clue:1},
-      {q:"그 안에서, 함께 갇힌 사람들은 끝내 살아 나오지 못했습니까?",v:"예",c:"…그 혼자만, 살아 나왔습니다.",clue:2},
-      {q:"그가 끝내 살아남은 것에는, 차마 말 못 할 까닭이 있습니까?",v:"예",c:"…그 까닭을, 그는 평생 입에 담지 못합니다.",clue:3},
-      {q:"그래서 그는 음식 앞에서 무너지는 것입니까?",v:"예",c:"…살아남았다는 사실이, 그를 짓누르니까요.",clue:3},
-      {q:"그는 자신이 살아남은 것을 용서하지 못합니까?",v:"예",c:"네. ‘왜 나만 살았는가’ — 그 물음에 갇혀 있습니다.",clue:3},
-      {q:"그는 그 비극의 책임자를 단죄했습니까?",v:"예",c:"…자신이 갇혔던 것처럼, 그자를 가두는 방식으로요.",clue:-1},
-      {q:"그가 갇힌 그 며칠은, 누군가의 욕심이 만든 시간입니까?",v:"예",c:"‘더 빨리, 더 많이’ — 그 욕심이요.",clue:0},
-      {q:"그는 원래 마른 체형이었습니까?",v:"아니요",c:"아니요. …그 일이, 그를 이렇게 만들었습니다.",clue:-1},
-      {q:"그는 병 때문에 음식을 못 먹는 것입니까?",v:"아니요",c:"아니요. 몸의 병이 아닙니다.",clue:-1},
-      {q:"그는 스스로 굶은 것이 아니라, 갇혀서 굶주린 것입니까?",v:"예",c:"네. 빠져나갈 수 없었으니까요.",clue:1},
-      {q:"그가 끝내 말하지 못하는 그 일은, 살기 위한 절박함에서 비롯된 것입니까?",v:"부분적",c:"…절박함이라 부르기엔, 너무 가혹한 것이었지요.",clue:3},
-      {q:"무너진 건물이 몇 층이었는지가 중요합니까?",v:"상관없음",c:"그건 이 이야기와 상관없습니다.",clue:-1},
-      {q:"그가 갇힌 계절이 언제였는지가 중요합니까?",v:"상관없음",c:"언제였는지는, 중요하지 않습니다.",clue:-1},
-    ],
-    solveOpts:[
-      {t:"무리한 철거로 건물이 무너져 그는 가족과 함께 지하에 갇혔고, 구조는 오지 않았다. 끝내 홀로 살아 나온 그는 그 생존의 까닭을 평생 입에 담지 못한 채, ‘왜 나만 살았는가’라는 죄책감으로 음식 앞에서 무너진다.",correct:true},
-      {t:"그는 단식으로 건강을 잃었고, 트라우마로 음식을 거부하게 되었다.",correct:false},
-      {t:"그는 누군가에게 독을 먹은 적이 있어, 음식을 두려워하게 되었다.",correct:false},
-      {t:"그는 가족을 굶주리게 한 죄인이었고, 그 죄책감에 스스로 음식을 끊었다.",correct:false},
-      {t:"그는 사고로 미각을 잃어, 먹는 행위 자체에 의미를 못 느낀다.",correct:false},
-      {t:"그는 가난 때문에 평생 굶주려 왔고, 그 습관이 몸에 배어 못 먹는 것이다.",correct:false},
-      {t:"그는 갇혔다 살아남았지만, 함께 갇힌 사람들은 모두 무사히 구조되었다.",correct:false},
-      {t:"그는 음식 알레르기가 심해, 따뜻한 스프를 먹을 수 없을 뿐이다.",correct:false},
-      {t:"그는 건물 붕괴의 책임자였고, 자신이 묻은 사람들 생각에 음식을 넘기지 못한다.",correct:false},
-      {t:"그는 갇힌 동안 동료를 두고 혼자 빠져나왔고, 그 비겁함에 음식을 못 먹는다.",correct:false},
-    ],
-    hints:[
-      "그가 못 먹는 건 입맛 때문이 아닙니다. 음식이 그에게 떠올리게 하는 ‘시간’이 있습니다.",
-      "그는 한때 빠져나올 수 없는 곳에 갇혀, 오래 굶주렸습니다. 무엇이 그를 그곳에 가두었을까요.",
-      "그는 그곳에서 홀로 살아 나왔습니다. — 어떻게 버텼는지, 그가 평생 입에 담지 못하는 그 까닭이, 답입니다."
-    ],
-    trueTitle:"엔딩 · 식지 않는 그릇",
-    trueBody:`<p>무리한 철거가 건물을 무너뜨렸고, 그는 사랑하는 가족과 함께 지하에 갇혔습니다. 며칠이 흘러도 — 구조는, 오지 않았습니다.</p>
-      <p>끝내 그곳에서 살아 나온 건 그 혼자였습니다. 무엇으로 그 시간을 버텼는지, 그는 평생 입에 담지 못합니다. 그래서 따뜻한 음식 앞에 앉으면, 그 며칠이 한꺼번에 되살아나 그를 짓누르는 것입니다.</p>
-      <p>‘왜 나만 살아남았는가.’ 그 물음에 갇힌 채, 그는 자신을 가둔 자를 — 자신이 갇혔던 것과 꼭 같은 방식으로 되갚았습니다.</p>`,
-    leave:`그가 오래 응시하던 그릇을, 떨리는 손으로 마침내 들어 올린다. 처음으로, 아주 천천히 한 술을 입에 넣는다.
-      <div class="lastword">“…이제, 같이 먹어도 될까. 너무 오래, 나 혼자 살아 있었어. 잘 먹겠습니다, 주인장.”</div>
-      그는 비워진 그릇을 가만히 내려놓고, 가벼워진 몸으로 안개 속으로 걸어 나간다.`,
-    memory:`설계도를 내려다보던 한 남자가, 안전 점검표를 옆으로 밀어둔다. “일정이 빠듯해. 점검은 나중에. — 지금은 무조건 빨리 끝내.” 그 한마디에, 누군가의 며칠이 송두리째 묻혔다.<br><br>— ‘더 빨리, 더 많이’를 외치던 그 목소리가, 내 입에서 났던 것만 같다.`,
-    fragNo:6,nextCode:"AVARITIA",
-    normalTitle:"엔딩 · 차마 들지 못한 술",
-    normalBody:`<p>당신의 이야기는 틀리지 않았습니다. 그는 갇혔고, 홀로 살아 나왔으며, 그 까닭을 입에 담지 못하지요.</p>
-      <p>하지만 무언가가 채 헤아려지지 못했습니다. 그는 끝내 그릇에 손을 대지 못한 채, 빈 눈으로 일어섭니다. 식당에는 깊은 정적만 가라앉습니다.</p>
-      <p class="lastword">— 주인은 식어버린 그릇을 거둔다. ‘더 빨리, 더 많이’… 어디선가 자신이 내뱉었던 듯한 그 말이, 귓가에 맴돈다.</p>
-      <p class="sig">진실의 조각을 모두 모으면, 다른 끝에 닿을 수 있습니다.</p>`
-  }
-};
-
-const PER_PAGE=5, SOLVE_PER=5;
-let CH=null, page=0, solvePage=0, solveOrder=[];
-let revealed=[false,false,false,false], qcount=0, solved=false, hintUsed=0, asked={};
-let curSin=null;                          // 현재 챕터 죄악 키
-let chapterClear={};                      // {WRATH:true/false ...} 조각 4개 다 모으고 클리어했는지 누적
-
-/* 타이틀 */
-$('#btnNew').onclick=()=>hideTitle(()=>startOpening());
-$('#btnLoadToggle').onclick=()=>{$('#loadbox').classList.toggle('show');$('#codeInput').focus();};
-$('#btnLoadGo').onclick=loadByCode;
-$('#codeInput').addEventListener('keydown',e=>{if(e.key==='Enter')loadByCode();});
-function loadByCode(){
-  const v=$('#codeInput').value.trim().toUpperCase();const msg=$('#loadmsg');msg.classList.remove('err');
-  const ch=CHAPTERS.find(c=>c.code===v);
-  if(!v){msg.textContent="";return;}
-  if(!ch){msg.classList.add('err');msg.textContent="그런 손님은 이곳에 든 적이 없습니다.";return;}
-  if(DATA[ch.sin]){msg.textContent="문이 열립니다…";hideTitle(()=>startGame(ch.sin));}
-  else if(ch.sin==="GREED"){msg.textContent="…마지막 손님이 기다립니다.";hideTitle(()=>enterFinale());}
-  else{msg.textContent="기록을 확인했습니다…";hideTitle(()=>showStub(ch));}
-}
-function hideTitle(then){$('#title').classList.add('gone');setTimeout(()=>{$('#title').style.display='none';if(then)then();},1000);}
-
-/* 오프닝 (새 게임 → WRATH) */
-const OPEN_LINES=[
-  {who:"",t:"안개 속에서 눈을 뜬다. 여기가 어디인지 — 내가 누구인지조차, 기억나지 않는다."},
-  {who:"",t:"낡은 식당. 간판도 없다. 다만 손 끝이 기억한다. 이 자리를, 오래 지켜왔다는 것을."},
-  {who:"",t:"왜인지는 모른다. 그저 알 뿐이다. — 손님이 오면, 따뜻한 스프 한 그릇을 내어주어야 한다는 것."},
-  {who:"",t:"그리고 값을 받아야 한다. 돈이 아니라, 그들의 이야기 하나로."},
-  {who:"나",t:"“…나는, 언제부터 여기 있었던 걸까. 무엇을 기다리고 있는 걸까.”"},
-  {who:"",t:"문가에서 인기척이 났다. 한 청년이, 젖은 어깨로 들어와 구석에 앉는다."},
-  {who:"",t:"첫 손님이다. 영문도 모른 채, 나는 그 앞에 그릇을 내려놓는다. — 자, 당신의 이야기를 들려주시겠습니까."},
+// 장비 슬롯 5종 (강화하면 연관 능력치에 유효 보너스 → 전투력/의뢰 효과 상승)
+const EQUIP_SLOTS = [
+  { id:"weapon", nm:"무기", emoji:"⚔️", base:"검",   stat:"str" },
+  { id:"helmet", nm:"투구", emoji:"⛑️", base:"투구", stat:"tec" },
+  { id:"armor",  nm:"갑옷", emoji:"🥋", base:"갑옷", stat:"vit" },
+  { id:"shield", nm:"방패", emoji:"🛡️", base:"방패", stat:"vit" },
+  { id:"boots",  nm:"신발", emoji:"🥾", base:"신발", stat:"agi" },
 ];
-let oi=0;
-function startOpening(){$('#opening').classList.add('show');$('#opening').onclick=nextOpen;setTimeout(showOpen,700);}
-function showOpen(){const l=OPEN_LINES[oi];const el=$('#openLine');el.style.opacity=0;
-  setTimeout(()=>{el.innerHTML=(l.who?`<span class="who">${l.who}</span>`:"")+l.t;el.style.opacity=1;},300);}
-function nextOpen(){oi++;if(oi>=OPEN_LINES.length){$('#tapnext').style.display='none';$('#enterBtn').style.display='inline-block';$('#opening').onclick=null;return;}showOpen();}
-$('#enterBtn').onclick=e=>{e.stopPropagation();$('#opening').classList.add('gone');setTimeout(()=>{$('#opening').style.display='none';startGame('WRATH');},1100);};
+const EQUIP_GRADES = ["없음","낡은","평범한","정교한","정예","명장","전설"]; // tier 인덱스
+const EQUIP_PER_TIER = 3;      // 등급당 연관 능력치 유효 보너스
+const EQUIP_BASE_COST = 40;    // 1강화 기본 비용
+const EQUIP_COST_MUL  = 1.7;   // 등급당 비용 배수
 
-function showStub(ch){$('#stubView').style.display='block';
-  $('#stubText').innerHTML=`아직 이 손님은 식당에 도착하지 않았습니다.<br><span style="color:var(--amber)">${ch.sin} · ${ch.ko}</span><br><br>(현재 맞이할 수 있는 손님: <b style="color:var(--ink)">WRATH(IRA) · SLOTH(ACEDIA)</b>)`;}
-$('#stubBack').onclick=()=>location.reload();
-
-/* ── 게임 시작: 챕터 로드 ── */
-function startGame(sinKey){
-  CH=DATA[sinKey];curSin=sinKey;
-  revealed=[false,false,false,false];qcount=0;solved=false;hintUsed=0;asked={};page=0;
-  $('#chCrumb').textContent="경계의 식당 · "+CH.crumb;
-  $('#chSin').textContent=CH.sin;
-  $('#chKo').textContent=CH.ko;
-  $('#chLat').textContent=CH.lat;
-  $('#chRiddle').textContent=CH.riddle;
-  $('#log').innerHTML="";$('#revealSlot').innerHTML="";
-  $('#qcount').textContent="0";
-  $('#hintBtn').disabled=false;$('#hintBtn').textContent="주인에게 귀띔을 청한다 (남은 3)";
-  $('#openSolve').disabled=false;
-  $('#qpanel').style.opacity=1;$('#qpanel').style.pointerEvents='auto';
-  document.querySelectorAll('.gem').forEach(g=>{g.classList.remove('on','pop');});
-  $('#cpCount').textContent="0 / 4";
-  $('#cluePanel').classList.add('show');
-  $('#game').style.display='block';
-  renderPage();
-  window.scrollTo(0,0);
-}
-function esc(s){return (s||"").replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));}
-function scrollToEl(el){
-  const box=$('#convo');
-  if(box && box.contains(el)){ box.scrollTop=box.scrollHeight; }
-  else if(el){ el.scrollIntoView({behavior:'smooth',block:'center'}); }
-}
-const verdictClass=v=>v==="예"?"v-yes":v==="아니요"?"v-no":v==="부분적"?"v-part":"v-irr";
-
-/* ── 최종 엔딩 (일곱 조각이 모인 뒤, 주인 GREED 본인의 마지막) ── */
-const FINALE_LINES=[
-  {who:"",t:"여섯 명의 손님이 모두 떠난 식당. 처음으로, 나는 혼자가 된다."},
-  {who:"",t:"회수한 기억의 조각들이, 하나씩 제자리를 찾아 맞물리기 시작한다."},
-  {who:"기억",t:"비 내리는 철거 현장. “예정대로 진행해. 본보기가 필요하니까.”"},
-  {who:"기억",t:"“안에 뭐가 있든 신경 쓰지 마. 자넨 문만 잠그면 돼.”"},
-  {who:"기억",t:"버려지는 부하의 눈빛. 자존심을 부추기던 비릿한 미소. 정을 미끼로 사람을 비우던 손길."},
-  {who:"기억",t:"“일정이 빠듯해. 점검은 나중에. 무조건 빨리 끝내.”"},
-  {who:"",t:"여섯 개의 목소리가, 전부 한 사람의 입에서 났음을 — 나는 마침내 깨닫는다."},
-  {who:"나",t:"“…전부, 나였구나. 저 일곱 죄악을 짊어진 자가… 다름 아닌, 나였어.”"},
-  {who:"",t:"그때, 닫혀 있던 식당 문이 — 한 번 더, 천천히 열린다."},
-  {who:"",t:"일곱 번째 손님이 들어온다. 그가 구석 자리에 앉는다. 나는 그 앞에 그릇을 내려놓으려다… 굳는다."},
-  {who:"",t:"그 자리에는, 아무도 없다. 다만 벽에 걸린 낡은 거울 속에서 — 한 남자가, 나를 마주 보고 있다."},
-  {who:"나",t:"“…마지막 손님은, 나였군요. 내 이야기를, 이제 내가 들어야 할 차례인 겁니다.”"},
-  {who:"",t:"거울 속의 나를 마주한 채, 나는 내 사연을 — 탐욕(貪慾)의 죄를 — 비로소 입에 담는다."},
-  {who:"",t:"무너지듯 주저앉은 손에, 식당 한구석에 오래 꽂혀 있던 낡은 책 한 권이 잡힌다."},
-  {who:"",t:"표지에는, 빛바랜 글씨 — 『바다거북 스프』."},
-  {who:"",t:"그날, 내가 불태운 건물 안에서… 한 아이가 끝까지 품고 있던 책이었다."},
-  {who:"나",t:"“이 이야기를… 나는, 손님들에게 들려주고 있었어. 내가 빼앗은 아이의 책으로.”"},
-  {who:"",t:"나는 오래도록 그 책을 가슴에 안는다. 씻을 수 없는 죄가, 비로소 또렷한 무게로 나를 누른다."},
-  {who:"나",t:"“…이제, 나도 한 그릇 값을 치를 때가 됐군요.”"},
-  {who:"",t:"마지막으로, 내 앞에 따뜻한 스프 한 그릇을 조용히 내려놓는다. 거울 속의 남자도, 똑같이 그렇게 한다."},
-  {who:"",t:"식당의 등불이 천천히 사그라든다. 안개가, 거울도 그릇도 — 모든 것을 부드럽게 덮어 간다."},
+// 수련 종류 (수련장에서 선택 → 해당 능력치 실시간 상승)
+const TRAININGS = [
+  { stat:"str", nm:"허수아비 치기", desc:"힘 단련",   target:"🎯", fx:"💥" },
+  { stat:"tec", nm:"목검 대련",     desc:"검술 단련", target:"🛡️", fx:"⚔️" },
+  { stat:"agi", nm:"표적 회피",     desc:"민첩 단련", target:"💨", fx:"✨" },
+  { stat:"vit", nm:"모래주머니",    desc:"체력 단련", target:"🪨", fx:"💢" },
 ];
-let fi=0;
-function startFinale(){
-  $('#cluePanel').classList.remove('show');
-  $('#opening').classList.remove('gone');
-  $('#opening').style.display='flex';
-  $('#opening').classList.add('show');
-  $('#tapnext').style.display='block';$('#tapnext').textContent="화면을 누르십시오";
-  $('#enterBtn').style.display='none';
-  $('#door').style && null;
-  fi=0;
-  $('#opening').onclick=nextFinale;
-  setTimeout(showFinale,500);
-}
-function showFinale(){
-  const l=FINALE_LINES[fi];const el=$('#openLine');el.style.opacity=0;
-  setTimeout(()=>{el.innerHTML=(l.who?`<span class="who">${l.who}</span>`:"")+l.t;el.style.opacity=1;},300);
-}
-function nextFinale(){
-  fi++;
-  if(fi>=FINALE_LINES.length){
-    $('#opening').onclick=null;$('#tapnext').style.display='none';
-    const el=$('#openLine');el.style.opacity=0;
-    setTimeout(()=>{
-      el.innerHTML=`<span class="who">FIN</span>경계의 식당<br><span style="font-size:14px;color:var(--ink-dim);font-style:italic">— 떠나지 못한 자는, 끝내 자신이었다.</span>`;
-      el.style.opacity=1;
-      $('#enterBtn').style.display='inline-block';$('#enterBtn').textContent="처음으로";
-    },500);
-    return;
-  }
-  showFinale();
-}
+const TRAIN_REP_INTERVAL = 0.7; // 초당 약 1.4타
+let trainAcc = 0;
 
-const totalPages=()=>Math.ceil(CH.questions.length/PER_PAGE);
-function renderPage(){
-  const list=$('#qlist');list.innerHTML="";
-  const start=page*PER_PAGE;
-  CH.questions.slice(start,start+PER_PAGE).forEach((item,k)=>{
-    const idx=start+k;
-    const b=document.createElement('button');b.className='qitem'+(asked[idx]?' asked':'');
-    b.innerHTML=`<span class="num">${String(idx+1).padStart(2,'0')}</span>${esc(item.q)}`;
-    b.onclick=()=>askQuestion(idx,b);
-    list.appendChild(b);
-  });
-  $('#pinfo').textContent=`${page+1} / ${totalPages()}`;
-  $('#prevPage').disabled=page===0;
-  $('#nextPage').disabled=page>=totalPages()-1;
-}
-$('#prevPage').onclick=()=>{if(page>0){page--;renderPage();}};
-$('#nextPage').onclick=()=>{if(page<totalPages()-1){page++;renderPage();}};
+// 육성(강화)
+const UPGRADES = [
+  { id:"goldGen", emoji:"🏰", nm:"영지 운영", ds:"초당 골드 수입 +1",        base:50, mul:1.6,  eff:1,   max:100 },
+  { id:"autoTr",  emoji:"📜", nm:"자율 수련", ds:"자동 수련 경험치 +0.2/초", base:40, mul:1.55, eff:0.2, max:100 },
+  { id:"trainPow",emoji:"🏋️", nm:"수련 강도", ds:"1회 공격 경험치 +1",       base:35, mul:1.5,  eff:1,   max:50  },
+  { id:"questSpd",emoji:"🐎", nm:"신속 이동", ds:"의뢰 진행 속도 +10%",      base:60, mul:1.7,  eff:0.1, max:30  },
+];
 
-function lightGem(i){
-  if(i<0||i>3||revealed[i]) return;
-  revealed[i]=true;
-  const g=document.querySelector(`.gem[data-i="${i}"]`);
-  g.classList.add('on');g.classList.remove('pop');void g.offsetWidth;g.classList.add('pop');
-  $('#cpCount').textContent=`${revealed.filter(Boolean).length} / 4`;
-}
-function askQuestion(idx,btn){
-  if(solved||asked[idx]) return;
-  const item=CH.questions[idx];
-  asked[idx]=true;btn.classList.add('asked');
-  qcount++;$('#qcount').textContent=qcount;
-  const t=document.createElement('div');t.className='turn';
-  t.innerHTML=`<div class="q">${esc(item.q)}</div>
-    <div class="a"><span class="verdict ${verdictClass(item.v)}">${item.v}</span><span class="said">“${esc(item.c)}”</span></div>`;
-  $('#log').appendChild(t);scrollToEl(t);
-  lightGem(item.clue);
-}
+// 의뢰: rankReq(요구 계급 인덱스 = 명성으로 승급해야 해금), req(추천 전투력=효율 계산용), dur(초), exp, gold, focus(중점 능력치)
+const QUESTS = [
+  { id:"herb",  emoji:"🌿", nm:"약초 채집",   rankReq:0, req:0,   dur:8,   exp:12,   gold:8,   focus:"vit" },
+  { id:"wolf",  emoji:"🐺", nm:"들개 퇴치",   rankReq:1, req:12,  dur:14,  exp:32,   gold:22,  focus:"str" },
+  { id:"thief", emoji:"🗡️", nm:"도적 토벌",   rankReq:2, req:24,  dur:22,  exp:78,   gold:55,  focus:"agi" },
+  { id:"guard", emoji:"🛡️", nm:"상단 호위",   rankReq:3, req:45,  dur:34,  exp:180,  gold:135, focus:"vit" },
+  { id:"boar",  emoji:"🐗", nm:"마수 사냥",   rankReq:4, req:75,  dur:50,  exp:380,  gold:290, focus:"str" },
+  { id:"dgn",   emoji:"🏰", nm:"던전 탐사",   rankReq:5, req:120, dur:72,  exp:760,  gold:600, focus:"tec" },
+  { id:"drake", emoji:"🐉", nm:"용 추적전",   rankReq:6, req:200, dur:100, exp:1600, gold:1300,focus:"agi" },
+  { id:"demon", emoji:"👹", nm:"마왕군 토벌", rankReq:7, req:320, dur:145, exp:3400, gold:2800,focus:"tec" },
+];
 
-$('#hintBtn').onclick=()=>{
-  if(solved||hintUsed>=3) return;
-  const el=document.createElement('div');el.className='hintline';
-  el.innerHTML=`<span class="hk">주인의 귀띔 · ${hintUsed+1}번째</span>“${esc(CH.hints[hintUsed])}”`;
-  $('#log').appendChild(el);hintUsed++;
-  $('#hintBtn').textContent=hintUsed>=3?"귀띔을 모두 들었다":`주인에게 귀띔을 청한다 (남은 ${3-hintUsed})`;
-  if(hintUsed>=3)$('#hintBtn').disabled=true;
-  scrollToEl(el);
-};
+const ACHIEVEMENTS = [
+  { id:"firstTrain", nm:"첫 수련",     ds:"능력치를 처음 올리다",   emoji:"🗡️", check:s=>s.totalTrains>=1 },
+  { id:"firstQuest", nm:"첫 의뢰",     ds:"의뢰를 처음 완수하다",   emoji:"📜", check:s=>s.totalQuests>=1 },
+  { id:"lv10",       nm:"한계 돌파",    ds:"레벨 10 도달",           emoji:"⭐", check:s=>s.level>=10 },
+  { id:"knight",     nm:"기사 서임",    ds:"정식 기사로 승급",        emoji:"🤺", check:s=>s.rank>=4 },
+  { id:"master",     nm:"살아있는 전설", ds:"마스터급 기사로 승급",     emoji:"👑", check:s=>s.rank>=7 },
+  { id:"gold1k",     nm:"부유한 영주",  ds:"골드 1,000 보유",        emoji:"💰", check:s=>s.gold>=1000 },
+  { id:"pow500",     nm:"일기당천",     ds:"전투력 150 달성",        emoji:"🔥", check:s=>power()>=150 },
+  { id:"quest100",   nm:"백전노장",     ds:"의뢰 100회 완수",        emoji:"🏅", check:s=>s.totalQuests>=100 },
+];
 
-$('#openSolve').onclick=()=>{
-  if(solved) return;
-  solveOrder=[...CH.solveOpts.keys()].sort(()=>Math.random()-0.5);
-  solvePage=0;renderSolvePage();$('#solveModal').classList.add('show');
-};
-function renderSolvePage(){
-  const wrap=$('#solveOpts');wrap.innerHTML="";
-  const start=solvePage*SOLVE_PER;
-  solveOrder.slice(start,start+SOLVE_PER).forEach(i=>{
-    const o=CH.solveOpts[i];
-    const b=document.createElement('button');b.className='opt';b.textContent=o.t;
-    b.onclick=()=>chooseSolve(o);
-    wrap.appendChild(b);
-  });
-  const tp=Math.ceil(CH.solveOpts.length/SOLVE_PER);
-  $('#solvePinfo').textContent=`${solvePage+1} / ${tp}`;
-  $('#solvePrev').disabled=solvePage===0;
-  $('#solveNext').disabled=solvePage>=tp-1;
-}
-$('#solvePrev').onclick=()=>{if(solvePage>0){solvePage--;renderSolvePage();}};
-$('#solveNext').onclick=()=>{const tp=Math.ceil(CH.solveOpts.length/SOLVE_PER);if(solvePage<tp-1){solvePage++;renderSolvePage();}};
-$('#closeSolve').onclick=()=>$('#solveModal').classList.remove('show');
-
-function chooseSolve(o){
-  $('#solveModal').classList.remove('show');
-  if(!o.correct){gameOver(o.t);return;}
-  reveal();
-}
-
-function gameOver(wrongText){
-  $('#goText').innerHTML=`“…아닙니다.”<br>주인은 조용히 고개를 젓는다. 손님의 그림자가 흐릿해지더니, 끝내 한이 풀리지 못한 채 식당 한구석에 머문다.<br><br><span style="color:var(--ink)">당신이 들려준 이야기: “${esc(wrongText)}”</span>`;
-  $('#gameover').classList.add('show');
-}
-$('#goRetry').onclick=()=>{$('#gameover').classList.remove('show');};
-$('#goTitle').onclick=()=>location.reload();
-
-function reveal(){
-  if(solved) return;solved=true;
-  $('#openSolve').disabled=true;$('#hintBtn').disabled=true;
-  $('#qpanel').style.opacity=.35;$('#qpanel').style.pointerEvents='none';
-
-  const allClues=revealed.every(Boolean);
-  if(curSin) chapterClear[curSin]=allClues;   // 이 챕터를 조각 4개 다 모으고 깼는지 누적 기록
-  const ov=$('#revealSlot');
-  ov.innerHTML=`<div class="ov-inner"><div class="reveal"><h3>${esc(CH.trueTitle)}</h3><div class="body">${CH.trueBody}</div></div>
-    <div class="leave" id="leaveSlot"></div></div>`;
-  ov.classList.add('show');ov.scrollTop=0;
-  const inner=ov.querySelector('.ov-inner');
-  const scrollOv=()=>{ov.scrollTop=ov.scrollHeight;};
-  setTimeout(()=>{$('#leaveSlot').innerHTML=CH.leave;scrollOv();},1500);
-  setTimeout(()=>{const m=document.createElement('div');m.className='memory';
-    m.innerHTML=`<div class="mk">— 주인의 머릿속에, 무언가가 스친다</div><p>${CH.memory}</p>
-      <div class="frag">기억의 조각 ${CH.fragNo} / 7 · 회수됨${allClues?"":" <span style='color:#a9534a'>(진실의 조각 미완)</span>"}</div>`;
-    inner.appendChild(m);scrollOv();},3200);
-  setTimeout(()=>{const c=document.createElement('div');c.className='codecard';
-    const isLast = CH.nextCode==="AVARITIA";
-    c.innerHTML=`<div class="ck">${isLast?"마지막, 일곱 번째 손님을 위한 코드":"다음 손님을 위한 기록 코드"}</div><div class="code">${CH.nextCode}</div>
-      <div class="desc">${isLast?"이 코드를 입력하면, 모든 진실이 모이는 마지막 자리로 향합니다.":"이 코드를 적어 두십시오. 다음에 ‘불러오기’에서 입력하면, 이 자리에서 이어집니다."}</div>`;
-    inner.appendChild(c);endingButtons(inner);scrollOv();},4600);
-}
-function endingButtons(host){
-  if(document.getElementById('eaRetry')) return;
-  const next=CH.nextCode;
-  const nextChapter=CHAPTERS.find(c=>c.code===next);
-  const isFinale = next==="AVARITIA";
-  const d=document.createElement('div');d.className='ending-actions';
-  d.innerHTML=`<button class="ea-retry" id="eaRetry">타이틀로</button>
-    <button class="ea-title" id="eaTitle">${isFinale?"마지막 자리로":"다음 손님 맞이하기"}</button>`;
-  (host||$('#revealSlot')).appendChild(d);
-  $('#eaRetry').onclick=()=>location.reload();
-  $('#eaTitle').onclick=()=>{
-    if(isFinale){ enterFinale(); }
-    else if(nextChapter && DATA[nextChapter.sin]){ startGame(nextChapter.sin); }
-    else { location.reload(); }
+// ---- 상태 ----
+function freshState(){
+  return {
+    gold: 0,
+    level: 1, exp: 0,
+    fame: 0, rank: 0, // 명성 / 현재 계급(인덱스). 명성 충족 시 수동 승급
+    // 각 능력치는 레벨 + 경험치 (1회 공격 = 해당 능력치 경험치)
+    stats: { str:{lv:1,exp:0}, agi:{lv:1,exp:0}, vit:{lv:1,exp:0}, tec:{lv:1,exp:0} },
+    equip: { weapon:0, helmet:0, armor:0, shield:0, boots:0 }, // 슬롯별 강화 등급(tier)
+    upg: {},
+    ach: {},
+    activeQuest: null, questElapsed: 0, autoRepeat: true, // 의뢰는 의뢰소에서 직접 선택
+    training: "str", // 수련장에서 선택한 훈련
+    totalTrains: 0, totalQuests: 0,
+    lastTime: Date.now(),
   };
 }
-function enterFinale(){
-  const sixSins=["WRATH","SLOTH","ENVY","PRIDE","LUST","GLUTTONY"];
-  const missing=sixSins.filter(s=>!chapterClear[s]);
-  $('#game').style.display='none';
-  if(missing.length){
-    // 여섯 챕터 중 하나라도 조각을 다 못 모았으면 진엔딩 불가
-    const koMap={WRATH:"분노",SLOTH:"나태",ENVY:"질투",PRIDE:"교만",LUST:"색욕",GLUTTONY:"폭식"};
-    const list=missing.map(s=>koMap[s]).join(" · ");
-    $('#stubView').style.display='block';
-    $('#stubText').innerHTML=`아직, 진실이 다 모이지 않았습니다.<br><br>
-      <span style="color:var(--amber)">미완의 손님 — ${list}</span><br><br>
-      진실의 조각을 <b style="color:var(--ink)">모두</b> 모은 채로 여섯 손님을 모두 거쳐야,<br>주인은 비로소 자신의 마지막과 마주할 수 있습니다.<br><br>
-      <span style="font-size:13px">(한 자리에서 ‘다음 손님 맞이하기’로 쭉 이어 플레이하며,<br>각 손님의 조각 4개를 모두 켜 보십시오.)</span>`;
-    return;
+let S = load() || freshState();
+UPGRADES.forEach(u => { if (S.upg[u.id] == null) S.upg[u.id] = 0; });
+STATS.forEach(st => { if (S.stats[st.id] == null) S.stats[st.id] = {lv:1,exp:0}; });
+if(!S.equip) S.equip = {};
+EQUIP_SLOTS.forEach(e => { if (S.equip[e.id] == null) S.equip[e.id] = 0; });
+
+// ---- 파생 수치 ----
+function lv(id){ return S.upg[id] || 0; }
+function upgDef(id){ return UPGRADES.find(u=>u.id===id); }
+function goldPerSec(){ return lv("goldGen") * upgDef("goldGen").eff; }
+function autoTrRate(){ return lv("autoTr") * upgDef("autoTr").eff; } // 자동 수련: 초당 능력치 경험치
+function hitExp(){ return 3 + lv("trainPow") * upgDef("trainPow").eff; } // 1회 공격 = 능력치 경험치
+function questSpeed(){ return 1 + lv("questSpd") * upgDef("questSpd").eff; }
+function upgCost(u){ return Math.floor(u.base * Math.pow(u.mul, lv(u.id))); }
+
+// 능력치 레벨 시스템
+const RANK_CAP_BONUS = 5;                                          // 승급(계급)당 능력치 한계 증가량 (튜닝 예정)
+function statLvCap(){ return 5 + S.level + S.rank * RANK_CAP_BONUS; } // 능력치 레벨 한계 = 캐릭터 레벨 + 계급 보너스
+function statExpNeed(stLv){ return Math.floor(10 + (stLv-1) * 6); } // 능력치 레벨업에 필요한 경험치
+// 장비: 슬롯 등급 → 연관 능력치 유효 보너스
+function equipStatBonus(statId){
+  return EQUIP_SLOTS.reduce((a,e)=> a + (e.stat===statId ? (S.equip[e.id]||0)*EQUIP_PER_TIER : 0), 0);
+}
+function effStat(statId){ return S.stats[statId].lv + equipStatBonus(statId); } // 유효 능력치(수련 레벨 + 장비)
+function equipPower(){ return EQUIP_SLOTS.reduce((a,e)=> a + (S.equip[e.id]||0)*EQUIP_PER_TIER, 0); }
+function power(){ return STATS.reduce((a,st)=>a + effStat(st.id), 0); } // 전투력 = 유효 능력치 합(수련+장비)
+// 장비 강화 비용
+function equipCost(slotId){ return Math.floor(EQUIP_BASE_COST * Math.pow(EQUIP_COST_MUL, S.equip[slotId]||0)); }
+function equipGradeName(tier){ return tier<=0 ? "없음" : (tier < EQUIP_GRADES.length ? EQUIP_GRADES[tier] : EQUIP_GRADES[EQUIP_GRADES.length-1]+"+"+(tier-EQUIP_GRADES.length+1)); }
+
+// 능력치에 경험치 지급 → 레벨업 (캐릭터 레벨 한계까지)
+function gainStatExp(id, amt){
+  const s = S.stats[id], cap = statLvCap();
+  if(s.lv >= cap) return false; // 한계 도달
+  s.exp += amt;
+  let leveled = false;
+  while(s.exp >= statExpNeed(s.lv)){
+    if(s.lv >= cap){ s.exp = statExpNeed(s.lv); break; } // 한계에서 경험치 고정
+    s.exp -= statExpNeed(s.lv);
+    s.lv++; leveled = true;
   }
-  $('#revealSlot').innerHTML="";
-  startFinale();
+  return leveled;
+}
+function expNeed(){ return Math.floor(50 * Math.pow(S.level, 1.55)); }
+
+function currentRank(){ return RANKS[S.rank]; }
+function nextRank(){ return S.rank < RANKS.length-1 ? RANKS[S.rank+1] : null; }
+function canPromote(){ const n = nextRank(); return n && S.fame >= n.fameReq; }
+function rankRewardGold(rankIdx){ return Math.floor(50 * Math.pow(2.2, rankIdx)); } // 승급 보상 골드
+
+// 승급 실행 (조건 충족 시)
+function doPromote(){
+  if(!canPromote()) return;
+  S.rank++;
+  S._promoNotified = false; // 다음 계급 알림 재활성화
+  const reward = rankRewardGold(S.rank);
+  S.gold += reward;
+  const rk = RANKS[S.rank];
+  toast(`🎖️ 승급! 「${rk.name}」 — 보상 +${fmt(reward)}🪙 · 능력치 한계 +${RANK_CAP_BONUS}`);
+  popHero();
+  render(); renderDex(); save();
+}
+function questById(id){ return QUESTS.find(q=>q.id===id); }
+
+// ---- 능력치 → 의뢰 효과 (계수는 추후 튜닝) ----
+const QEFF = { effMin:0.5, effMax:3, rewardPerLv:0.02, critPerLv:0.01, critMax:0.5, rewardPerRank:0.05 };
+// 진행 속도 효율: 전투력이 추천치보다 높을수록 빠름
+function questEfficiency(q){
+  const base = Math.max(q.req, 8);
+  return Math.max(QEFF.effMin, Math.min(QEFF.effMax, power() / base));
+}
+// 완수 보상 배율: 중점 유효 능력치(수련+장비) + 계급 보너스
+function questRewardMult(q){ return 1 + effStat(q.focus) * QEFF.rewardPerLv + S.rank * QEFF.rewardPerRank; }
+// 대성공(보상 2배) 확률: 중점 유효 능력치에 비례
+function questCritChance(q){ return Math.min(QEFF.critMax, effStat(q.focus) * QEFF.critPerLv); }
+
+// ---- 경험치 / 레벨업 ----
+function gainExp(x){
+  S.exp += x;
+  let leveled = false;
+  while(S.exp >= expNeed()){
+    S.exp -= expNeed();
+    S.level++;
+    S.fame += FAME_PER_LEVEL; // 레벨을 명성으로 환산
+    leveled = true;
+  }
+  if(leveled){
+    toast(`⭐ 레벨 업! Lv.${S.level} · 명성 +${FAME_PER_LEVEL}`);
+    popHero(); renderDex();
+    if(canPromote() && !S._promoNotified){ S._promoNotified = true; toast(`🎖️ 승급 가능! 「${nextRank().name}」(으)로 승급하세요`); }
+  }
 }
 
-$('#reset').onclick=()=>location.reload();
+// =========================================================
+//  의뢰 진행 (실시간 + 오프라인 공용)
+// =========================================================
+function advanceQuest(sec, offline){
+  let out = { exp:0, gold:0, count:0, crits:0 };
+  if(!S.activeQuest) return out;
+  const q = questById(S.activeQuest);
+  if(!q) { S.activeQuest=null; return out; }
+  // 진행 속도 = 업그레이드 × 능력치 효율
+  let t = S.questElapsed + sec * questSpeed() * questEfficiency(q);
+  const rewMult = questRewardMult(q);
+  const critCh = questCritChance(q);
+  while(t >= q.dur){
+    let e = q.exp * rewMult, g = q.gold * rewMult;
+    if(offline){
+      // 오프라인은 대성공 기대값으로 환산 (결정적)
+      e *= (1 + critCh); g *= (1 + critCh);
+    } else if(Math.random() < critCh){
+      e *= 2; g *= 2; out.crits++;
+    }
+    out.exp += e; out.gold += g; out.count++;
+    t -= q.dur;
+    if(!S.autoRepeat){ S.activeQuest = null; t = 0; break; }
+    if(out.count > 100000) break; // 안전장치
+  }
+  S.questElapsed = S.activeQuest ? t : 0;
+  return out;
+}
+
+// =========================================================
+//  게임 루프
+// =========================================================
+let lastTick = Date.now();
+function tick(){
+  const now = Date.now();
+  const dt = Math.min((now - lastTick)/1000, 2);
+  lastTick = now;
+
+  S.gold += goldPerSec() * dt;
+
+  // 자동 수련 (화면 밖에서도 능력치 경험치 누적, 한계까지)
+  const rate = autoTrRate();
+  if(rate > 0){ STATS.forEach(st=> gainStatExp(st.id, rate*dt)); }
+
+  // 의뢰
+  const r = advanceQuest(dt, false);
+  if(r.count){
+    gainExp(r.exp); S.gold += r.gold;
+    if(r.count === 1){
+      if(r.crits > 0) floatText(`⭐대성공! +${Math.round(r.exp)} EXP`, "var(--gold)");
+      else floatText(`+${Math.round(r.exp)} EXP`, "var(--exp)");
+    }
+  }
+
+  // 수련장 입장 중이면 실시간으로 허수아비 타격 → 능력치 상승
+  if(S.training && $("sheet-train").classList.contains("open")){
+    trainAcc += dt;
+    while(trainAcc >= TRAIN_REP_INTERVAL){ trainAcc -= TRAIN_REP_INTERVAL; doTrainRep(); }
+  } else { trainAcc = 0; }
+
+  checkAchievements();
+  render();
+}
+
+// =========================================================
+//  렌더
+// =========================================================
+const $ = id => document.getElementById(id);
+function fmt(n){
+  n = Math.floor(n);
+  if (n < 1000) return ""+n;
+  if (n < 1e6) return (n/1e3).toFixed(n<1e4?1:0)+"K";
+  if (n < 1e9) return (n/1e6).toFixed(2)+"M";
+  return (n/1e9).toFixed(2)+"B";
+}
+function timeStr(sec){
+  sec = Math.ceil(sec);
+  if(sec < 60) return sec+"초";
+  const m = Math.floor(sec/60), s = sec%60;
+  return m+"분 "+(s>0?s+"초":"");
+}
+
+function render(){
+  $("gold").textContent = fmt(S.gold);
+  $("goldRate").textContent = "+"+goldPerSec().toFixed(0)+"/초";
+  $("level").textContent = "Lv."+S.level;
+  $("expPct").textContent = Math.floor(S.exp/expNeed()*100)+"%";
+
+  const rk = currentRank();
+  $("hero").textContent = rk.emoji;
+  $("hName").textContent = rk.name;
+  $("hRank").textContent = (S.rank+1)+"계급 · "+rk.desc;
+  $("hPower").textContent = "⚔️ 전투력 " + fmt(power());
+
+  const en = expNeed();
+  $("expBar").style.width = Math.min(100, S.exp/en*100)+"%";
+  $("expVal").textContent = fmt(S.exp)+" / "+fmt(en);
+
+  renderPromote();
+  renderQuestNow();
+  if($("sheet-train").classList.contains("open")) updateTrainReadout();
+}
+
+// 명성 게이지 + 승급 버튼 (메인 화면)
+function renderPromote(){
+  const box = $("promoteBox");
+  const n = nextRank();
+  if(!n){ box.innerHTML = `<div class="fame-line">🎖️ 명성 ${fmt(S.fame)} · 최고 계급 달성</div>`; return; }
+  if(canPromote()){
+    box.innerHTML = `<button class="promote-btn" id="doPromoteBtn">⬆ 「${n.name}」(으)로 승급! <small>보상 +${fmt(rankRewardGold(S.rank+1))}🪙</small></button>`;
+    $("doPromoteBtn").onclick = doPromote;
+  } else {
+    const prev = currentRank().fameReq;
+    const ratio = Math.max(0, Math.min(1, (S.fame - prev)/((n.fameReq - prev)||1)));
+    box.innerHTML = `
+      <div class="fame-line">🎖️ 명성 ${fmt(S.fame)} / ${fmt(n.fameReq)} <span class="fame-next">→ 다음 계급 ${n.emoji} ${n.name}</span></div>
+      <div class="bar fame"><span style="width:${ratio*100}%"></span></div>`;
+  }
+}
+
+function renderQuestNow(){
+  const box = $("questNow");
+  if(!S.activeQuest){
+    box.innerHTML = `<div class="quest-empty">의뢰소에서 의뢰를 선택하세요</div>`;
+    $("questBar").style.width = "0%";
+    $("questState").textContent = "의뢰 없음";
+    $("questTime").textContent = "";
+    return;
+  }
+  const q = questById(S.activeQuest);
+  const fm = statMeta(q.focus);
+  const rewMult = questRewardMult(q), critCh = questCritChance(q);
+  const eExp = Math.round(q.exp * rewMult), eGold = Math.round(q.gold * rewMult);
+  box.innerHTML = `<div class="quest-now">
+      <div class="qe">${q.emoji}</div>
+      <div class="qinfo"><div class="qnm">${q.nm} <span style="font-size:11px;color:var(--sub);font-weight:600">중점 ${fm.emoji}${fm.nm}</span></div>
+        <div class="qrw">완수 시 +${eExp} EXP · +${fmt(eGold)} 🪙 · 대성공 ${Math.round(critCh*100)}%</div></div>
+    </div>`;
+  const ratio = Math.min(1, S.questElapsed/q.dur);
+  $("questBar").style.width = (ratio*100)+"%";
+  const eff = questEfficiency(q);
+  $("questState").textContent = Math.floor(ratio*100)+"% · 효율 ×"+eff.toFixed(1);
+  const remain = Math.max(0, (q.dur - S.questElapsed)/(questSpeed()*eff));
+  $("questTime").textContent = "남은 시간 "+timeStr(remain);
+}
+
+// ===== 수련장 장면 =====
+function statMeta(id){ return STATS.find(s=>s.id===id); }
+function trainMeta(){ return TRAININGS.find(t=>t.stat===S.training); }
+
+function enterTrainScene(){
+  $("fighter").textContent = currentRank().emoji; // 현재 계급 모습으로 수련
+  $("trainHint").textContent = `능력치 한계 ${statLvCap()} · 레벨업·승급 시 상승`;
+  $("trCost").textContent = `1타 = 경험치 +${hitExp()}`;
+  renderTrainSelect();
+  setTrainTarget();
+  updateTrainReadout();
+}
+
+function renderTrainSelect(){
+  const box = $("trainSelect"); box.innerHTML = "";
+  TRAININGS.forEach(t=>{
+    const sel = S.training === t.stat;
+    const m = statMeta(t.stat);
+    const chip = document.createElement("div");
+    chip.className = "chip" + (sel?" sel":"");
+    chip.innerHTML = `<div class="ce">${m.emoji}</div><div class="cn">${t.nm}</div><div class="cs">${m.nm} ${S.stats[t.stat].lv}</div>`;
+    chip.onclick = ()=>{ S.training = t.stat; trainAcc = 0; renderTrainSelect(); setTrainTarget(); updateTrainReadout(); setTrMsg(""); save(); };
+    box.appendChild(chip);
+  });
+}
+
+function setTrainTarget(){
+  const t = trainMeta();
+  $("dummy").textContent = t ? t.target : "🎯";
+  $("hitFx").textContent = t ? t.fx : "💥";
+}
+
+function updateTrainReadout(){
+  const t = trainMeta();
+  if(!t){ $("trStatName").textContent = "훈련을 선택하세요"; $("trStatVal").textContent=""; $("trStatBar").style.width="0%"; return; }
+  const m = statMeta(t.stat), s = S.stats[t.stat], cap = statLvCap();
+  const atCap = s.lv >= cap;
+  const need = statExpNeed(s.lv);
+  $("trStatName").textContent = `${m.emoji} ${m.nm} ${s.lv}${atCap?" (한계)":""}`;
+  $("trStatVal").textContent = atCap ? "한계 도달" : `경험치 ${Math.floor(s.exp)} / ${need}`;
+  const bar = $("trStatBar");
+  bar.style.width = (atCap ? 100 : Math.min(100, s.exp/need*100))+"%";
+  bar.style.background = m.color;
+}
+
+function setTrMsg(msg, color){
+  const el = $("trMsg");
+  el.textContent = msg || "";
+  el.style.color = color || "var(--sub)";
+}
+
+// 1타 = 해당 능력치 경험치 획득 → 누적되면 능력치 레벨업
+function doTrainRep(){
+  const t = trainMeta(); if(!t) return;
+  const s = S.stats[t.stat], m = statMeta(t.stat);
+  if(s.lv >= statLvCap()){ setTrMsg(`⚠️ ${m.nm} 한계 도달! 레벨업 또는 승급으로 돌파하세요`, "var(--gold)"); return; }
+
+  const gain = hitExp();
+  const leveled = gainStatExp(t.stat, gain);
+  S.totalTrains++;
+  setTrMsg("");
+  animateStrike(t, gain, leveled);
+  if(leveled) toast(`${m.emoji} ${m.nm} 성장!`);
+  updateTrainReadout();
+  renderTrainSelect();
+}
+
+function animateStrike(t, gain, leveled){
+  const f = $("fighter"), d = $("dummy"), fx = $("hitFx"), fl = $("trainFloat");
+  f.classList.remove("strike"); void f.offsetWidth; f.classList.add("strike");
+  d.classList.remove("hit");    void d.offsetWidth; d.classList.add("hit");
+  fx.classList.remove("show");  void fx.offsetWidth; fx.classList.add("show");
+  const m = statMeta(t.stat);
+  if(leveled){ fl.textContent = "⬆ "+m.nm+" 성장!"; fl.style.color = "var(--gold)"; }
+  else { fl.textContent = "+"+gain+" "+m.nm+" EXP"; fl.style.color = m.color; }
+  fl.classList.remove("show"); void fl.offsetWidth; fl.classList.add("show");
+  setTimeout(()=>f.classList.remove("strike"), 130);
+}
+
+function renderQuests(){
+  const box = $("questList"); box.innerHTML = "";
+  QUESTS.forEach(q=>{
+    const locked = S.rank < q.rankReq; // 명성으로 승급한 계급에 따라 해금
+    const active = S.activeQuest === q.id;
+    const el = document.createElement("div");
+    el.className = "item" + (locked?" locked":"");
+    const fm = statMeta(q.focus);
+    const reqRankName = RANKS[q.rankReq].name;
+    const eff = questEfficiency(q), critCh = questCritChance(q);
+    el.innerHTML = `
+      <div class="emoji">${q.emoji}</div>
+      <div class="info">
+        <div class="nm">${q.nm} <span style="font-size:11px;color:${fm.color};font-weight:700">${fm.emoji}${fm.nm}</span></div>
+        <div class="ds">⏱️ ${timeStr(q.dur)} · +${q.exp} EXP · +${fmt(q.gold)} 🪙</div>
+        ${locked
+          ? `<div class="req">🔒 「${reqRankName}」 이상 (승급 필요)</div>`
+          : `<div class="lv">${RANKS[q.rankReq].emoji}${reqRankName}↑ · 속도효율 ×${eff.toFixed(1)} · 대성공 ${Math.round(critCh*100)}%</div>`}
+      </div>
+      <button class="buy go" ${locked?"disabled":""}>${active?"진행 중✓":"선택"}</button>`;
+    if(!locked){
+      const btn = el.querySelector("button");
+      btn.onclick = ()=>{
+        if(active){ // 진행 중인 의뢰 다시 누르면 중단
+          S.activeQuest = null; S.questElapsed = 0;
+          toast("의뢰를 중단했습니다");
+        } else {
+          S.activeQuest = q.id; S.questElapsed = 0;
+          toast(`📜 「${q.nm}」 의뢰 선택!`);
+        }
+        renderQuests(); render(); save();
+      };
+    }
+    box.appendChild(el);
+  });
+}
+
+function renderEquip(){
+  $("equipHint").textContent = `전투력 +${fmt(equipPower())}`;
+  const box = $("equipList"); box.innerHTML = "";
+  EQUIP_SLOTS.forEach(e=>{
+    const tier = S.equip[e.id] || 0;
+    const sm = statMeta(e.stat);
+    const cost = equipCost(e.id);
+    const bonus = tier * EQUIP_PER_TIER;
+    const nextBonus = (tier+1) * EQUIP_PER_TIER;
+    const itemName = tier>0 ? `${equipGradeName(tier)} ${e.base}` : `${e.base} (미착용)`;
+    const el = document.createElement("div");
+    el.className = "item";
+    el.innerHTML = `
+      <div class="emoji">${e.emoji}</div>
+      <div class="info">
+        <div class="nm">${e.nm} <span style="font-size:11px;color:var(--sub);font-weight:600">${itemName}</span></div>
+        <div class="ds">${sm.emoji}${sm.nm} <b style="color:${sm.color}">+${bonus}</b> → +${nextBonus}</div>
+        <div class="lv">강화 ${tier}단계</div>
+      </div>
+      <button class="buy" ${S.gold<cost?"disabled":""}>🪙 ${fmt(cost)}</button>`;
+    el.querySelector(".buy").onclick = ()=>{
+      const c = equipCost(e.id);
+      if(S.gold < c) return;
+      S.gold -= c; S.equip[e.id] = (S.equip[e.id]||0) + 1;
+      toast(`${e.emoji} ${equipGradeName(S.equip[e.id])} ${e.base} 강화!`);
+      renderEquip(); render(); save();
+    };
+    box.appendChild(el);
+  });
+}
+
+function renderUpgrades(){
+  const box = $("upgradeList"); box.innerHTML = "";
+  UPGRADES.forEach(u=>{
+    const cost = upgCost(u);
+    const maxed = lv(u.id) >= u.max;
+    const el = document.createElement("div");
+    el.className = "item";
+    el.innerHTML = `
+      <div class="emoji">${u.emoji}</div>
+      <div class="info"><div class="nm">${u.nm}</div><div class="ds">${u.ds}</div>
+        <div class="lv">Lv.${lv(u.id)}${maxed?" · MAX":""}</div></div>
+      <button class="buy" ${maxed||S.gold<cost?"disabled":""}>${maxed?"MAX":("🪙 "+fmt(cost))}</button>`;
+    if(!maxed){
+      el.querySelector(".buy").onclick = ()=>{
+        const c = upgCost(u);
+        if(S.gold < c) return;
+        S.gold -= c; S.upg[u.id]++;
+        toast(`${u.nm} Lv.${lv(u.id)}!`);
+        renderUpgrades(); render(); save();
+      };
+    }
+    box.appendChild(el);
+  });
+}
+
+function renderDex(){
+  // 승급 현황 요약 + 명성 게이지
+  const sum = $("dexPromote");
+  if(sum){
+    const n = nextRank();
+    if(!n){ sum.innerHTML = `<div class="fame-line">🎖️ 명성 ${fmt(S.fame)} · 최고 계급 달성</div>`; }
+    else if(canPromote()){
+      sum.innerHTML = `<button class="promote-btn" id="dexPromoteBtn">⬆ 「${n.name}」(으)로 승급! <small>보상 +${fmt(rankRewardGold(S.rank+1))}🪙</small></button>`;
+      $("dexPromoteBtn").onclick = ()=>{ doPromote(); renderDex(); };
+    } else {
+      const prev = currentRank().fameReq;
+      const ratio = Math.max(0, Math.min(1, (S.fame - prev)/((n.fameReq - prev)||1)));
+      sum.innerHTML = `<div class="fame-line">🎖️ 명성 ${fmt(S.fame)} / ${fmt(n.fameReq)} → ${n.emoji} ${n.name}</div>
+        <div class="bar fame" style="height:11px"><span style="width:${ratio*100}%"></span></div>
+        <div style="font-size:11px;color:var(--sub);text-align:center;margin-top:6px;">레벨업마다 명성 +${FAME_PER_LEVEL} · 계급당 의뢰 보상 +${Math.round(QEFF.rewardPerRank*100)}%</div>`;
+    }
+  }
+  const grid = $("dexGrid"); grid.innerHTML = "";
+  RANKS.forEach((rk,i)=>{
+    const unlocked = S.rank >= i;
+    const isCur = S.rank === i;
+    const cell = document.createElement("div");
+    cell.className = "cell" + (unlocked?" unlocked":"") + (isCur?" cur":"");
+    cell.innerHTML = `<div class="e">${unlocked?rk.emoji:"❔"}</div>
+      <div class="n">${unlocked?rk.name:"???"}</div><div class="rq">명성 ${fmt(rk.fameReq)}</div>`;
+    grid.appendChild(cell);
+  });
+}
+
+function renderAchieve(){
+  const box = $("achieveList"); box.innerHTML = "";
+  ACHIEVEMENTS.forEach(a=>{
+    const got = !!S.ach[a.id];
+    const el = document.createElement("div");
+    el.className = "item"; el.style.opacity = got?"1":".5";
+    el.innerHTML = `
+      <div class="emoji" style="${got?"":"filter:grayscale(1)"}">${a.emoji}</div>
+      <div class="info"><div class="nm">${a.nm}</div><div class="ds">${a.ds}</div></div>
+      <div style="font-size:20px">${got?"✅":"🔒"}</div>`;
+    box.appendChild(el);
+  });
+}
+
+function checkAchievements(){
+  let changed = false;
+  ACHIEVEMENTS.forEach(a=>{
+    if(!S.ach[a.id] && a.check(S)){ S.ach[a.id]=true; changed=true; toast(`🏆 업적 달성: ${a.nm}`); }
+  });
+  if(changed && $("sheet-dex").classList.contains("open")) renderAchieve();
+}
+
+// =========================================================
+//  상호작용 (캐릭터 탭 → 가벼운 반응만, 능력치 변화 없음)
+// =========================================================
+$("heroWrap").onclick = ()=>{ popHero(); };
+
+// 하단 액션 버튼 = 시트 열기
+$("btnTrain").onclick = ()=>openSheet("train");
+$("btnQuest").onclick = ()=>openSheet("quest");
+
+// 자동 반복 토글
+function syncAutoToggle(){ $("autoToggle").classList.toggle("on", !!S.autoRepeat); }
+$("autoToggle").onclick = ()=>{ S.autoRepeat = !S.autoRepeat; syncAutoToggle(); save(); };
+
+function popHero(){ const c=$("hero"); c.style.transform="scale(1.16)"; setTimeout(()=>c.style.transform="",110); }
+function floatText(txt,color){
+  const w=$("heroWrap"); const f=document.createElement("div");
+  f.className="float"; f.textContent=txt; f.style.color=color;
+  f.style.left="50%"; f.style.top="8%"; f.style.transform="translateX(-50%)";
+  w.appendChild(f); setTimeout(()=>f.remove(),900);
+}
+function floatTextAt(e,txt,color){
+  const w=$("heroWrap"); const r=w.getBoundingClientRect(); const f=document.createElement("div");
+  f.className="float"; f.textContent=txt; f.style.color=color;
+  f.style.left=(e.clientX-r.left)+"px"; f.style.top=(e.clientY-r.top)+"px";
+  w.appendChild(f); setTimeout(()=>f.remove(),900);
+}
+
+// 토스트
+let toastTimer;
+function toast(msg){
+  const t=$("toast"); t.textContent=msg; t.classList.add("show");
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove("show"),1800);
+}
+
+// 시트
+const sheets = ["train","quest","equip","upgrade","dex","info"];
+function openSheet(name){
+  closeSheets();
+  $("scrim").classList.add("open");
+  $("sheet-"+name).classList.add("open");
+  document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active", b.dataset.sheet===name));
+  if(name==="train") enterTrainScene();
+  if(name==="quest") renderQuests();
+  if(name==="equip") renderEquip();
+  if(name==="upgrade") renderUpgrades();
+  if(name==="dex"){ renderDex(); renderAchieve(); }
+}
+function closeSheets(){
+  $("scrim").classList.remove("open");
+  sheets.forEach(n=>$("sheet-"+n).classList.remove("open"));
+}
+document.querySelectorAll("nav button").forEach(b=> b.onclick = ()=>openSheet(b.dataset.sheet));
+document.querySelectorAll(".sheet .close").forEach(c=> c.onclick = ()=>{ closeSheets();
+  document.querySelector('nav button[data-sheet="train"]').classList.remove("active"); });
+$("scrim").onclick = closeSheets;
+
+// 세이브 / 로드
+function save(){ S.lastTime = Date.now(); try{ localStorage.setItem(SAVE_KEY, JSON.stringify(S)); }catch(e){} }
+function load(){ try{ const r=localStorage.getItem(SAVE_KEY); return r?JSON.parse(r):null; }catch(e){ return null; } }
+
+// 오프라인 정산
+function handleOffline(){
+  if(!S.lastTime) return;
+  const elapsed = (Date.now() - S.lastTime)/1000;
+  if(elapsed < 60) return;
+  const sec = Math.min(elapsed, 60*60*8); // 최대 8시간
+
+  const goldPassive = goldPerSec()*sec;
+  S.gold += goldPassive;
+
+  const beforeLv = S.level;
+  const r = advanceQuest(sec, true);
+  let qExp = r.exp, qGold = r.gold, qCount = r.count;
+  S.gold += qGold;
+  gainExp(qExp);
+
+  const totalGold = goldPassive + qGold;
+  if(totalGold < 1 && qCount === 0) return;
+
+  const hrs = Math.floor(elapsed/3600), min = Math.floor((elapsed%3600)/60);
+  $("offlineText").textContent = `자리를 비운 ${hrs>0?hrs+"시간 ":""}${min}분 동안 의뢰를 수행했습니다.`;
+  let html = `의뢰 ${qCount}회 완수<br>+${fmt(qExp)} EXP · +${fmt(totalGold)} 🪙`;
+  if(S.level > beforeLv) html += `<br><span style="color:var(--exp)">⭐ ${S.level-beforeLv}회 레벨업!</span>`;
+  $("offlineReward").innerHTML = html;
+  $("offlineModal").classList.add("open");
+}
+$("offlineClaim").onclick = ()=>{ $("offlineModal").classList.remove("open"); render(); save(); };
+
+// 초기화
+$("btnReset").onclick = ()=>{
+  if(confirm("정말 평민부터 다시 시작할까요? 모든 진행이 사라집니다.")){
+    localStorage.removeItem(SAVE_KEY);
+    S = freshState();
+    UPGRADES.forEach(u=>S.upg[u.id]=0);
+    closeSheets(); syncAutoToggle(); render(); renderDex(); toast("데이터를 초기화했습니다");
+  }
+};
+
+// 부팅
+syncAutoToggle();
+handleOffline();
+render(); renderDex();
+lastTick = Date.now();
+setInterval(tick, 200);
+setInterval(save, 5000);
+document.addEventListener("visibilitychange", ()=>{ if(document.hidden) save(); });
+window.addEventListener("beforeunload", save);
 </script>
+</body>
+</html>
